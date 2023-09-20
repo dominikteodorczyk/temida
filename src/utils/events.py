@@ -1,5 +1,11 @@
 from pandas import DataFrame
 
+class TwoWayBetEvent:
+
+    def __init__(self) -> None:
+        pass
+
+
 class TwoWayBetEventsTable:
 
     def __init__(self) -> None:
