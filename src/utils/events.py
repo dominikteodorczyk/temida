@@ -4,15 +4,38 @@ A module containing classes of objects representing events.
 
 from pandas import DataFrame
 
+class BetEvent:
+    def __init__(self, home_player, away_player,event_date) -> None:
+        self.home_player = home_player
+        self.away_player = away_player
+        self.event_date = event_date
 
-class TwoWayBetEvent:
+    @classmethod
+    def input(cls, data_list):
+        new_bet = cls(data_list)
+        return new_bet
+
+class TwoWayBetEvent(BetEvent):
     """
-    The object of a single event obtained by scraping data
+    The object of a single two-way event obtained by scraping data
     at all bookmakers.
     """
+    def __init__(self, home_player, away_player, event_date, home_team_win, away_team_win) -> None:
+        super().__init__(home_player, away_player, event_date)
+        self.home_team_win = home_team_win
+        self.away_team_win = away_team_win
 
-    def __init__(self) -> None:
-        pass
+
+class ThreeWayBetEvent(BetEvent):
+    """
+    The object of a single three-way event obtained by scraping data
+    at all bookmakers.
+    """
+    def __init__(self, home_player, away_player, event_date, home_team_win, away_team_win, draw) -> None:
+        super().__init__(home_player, away_player, event_date)
+        self.home_team_win = home_team_win
+        self.away_team_win = away_team_win
+        self.draw = draw
 
 
 class TwoWayBetEventsTable:
