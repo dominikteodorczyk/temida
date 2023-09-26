@@ -1,9 +1,9 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
-from src.scrapers.base import Scraper
+from scrapers.base import Scraper
 import time
-from src.utils.parsers import FortunaParsers
+from utils.parsers import FortunaParsers
 
 
 class FortunaScraper(Scraper):
@@ -22,13 +22,17 @@ class FortunaScraper(Scraper):
             print("Can't close cookies msg:", e)
 
     def get_whole_site(self):
-        last_height = self.driver.execute_script("return document.body.scrollHeight")
+        last_height = self.driver.execute_script(
+            "return document.body.scrollHeight"
+        )
         while True:
             self.driver.execute_script(
                 "window.scrollTo(0, document.body.scrollHeight);"
             )
             time.sleep(2)
-            new_height = self.driver.execute_script("return document.body.scrollHeight")
+            new_height = self.driver.execute_script(
+                "return document.body.scrollHeight"
+            )
             if new_height == last_height:
                 break
             last_height = new_height
@@ -74,9 +78,15 @@ class FortunaTwoWayBets(FortunaScraper):
                 event_name = event.find_element(
                     By.XPATH, ".//td[1]/div/div[1]/span[1]"
                 ).text
-                home_team_win = event.find_element(By.XPATH, ".//td[2]/a/span").text
-                away_team_win = event.find_element(By.XPATH, ".//td[3]/a/span").text
-                event_date = event.find_element(By.CLASS_NAME, "event-datetime").text
+                home_team_win = event.find_element(
+                    By.XPATH, ".//td[2]/a/span"
+                ).text
+                away_team_win = event.find_element(
+                    By.XPATH, ".//td[3]/a/span"
+                ).text
+                event_date = event.find_element(
+                    By.CLASS_NAME, "event-datetime"
+                ).text
                 time.sleep(0.01)
             except Exception as e:
                 pass  # TODO: logger
@@ -97,10 +107,16 @@ class FortunaThreeWayBets(FortunaScraper):
                 event_name = event.find_element(
                     By.XPATH, ".//td[1]/div/div[1]/span[1]"
                 ).text
-                home_team_win = event.find_element(By.XPATH, ".//td[2]/a/span").text
+                home_team_win = event.find_element(
+                    By.XPATH, ".//td[2]/a/span"
+                ).text
                 draw = event.find_element(By.XPATH, ".//td[3]/a/span").text
-                away_team_win = event.find_element(By.XPATH, ".//td[4]/a/span").text
-                event_date = event.find_element(By.CLASS_NAME, "event-datetime").text
+                away_team_win = event.find_element(
+                    By.XPATH, ".//td[4]/a/span"
+                ).text
+                event_date = event.find_element(
+                    By.CLASS_NAME, "event-datetime"
+                ).text
                 time.sleep(0.01)
             except Exception as e:
                 # print(event_name,e)TODO: logger

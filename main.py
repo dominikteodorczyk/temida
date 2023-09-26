@@ -1,5 +1,5 @@
-from src.scrapers.fortuna import FortunaTwoWayBets,FortunaThreeWayBets
-from src.utils.sports import Fortuna
+from scrapers.fortuna import FortunaTwoWayBets,FortunaThreeWayBets
+from utils.sports import Fortuna
 
 
 def main():
