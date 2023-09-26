@@ -4,6 +4,8 @@ from selenium.common.exceptions import NoSuchElementException
 from scrapers.base import Scraper
 import time
 from utils.parsers import FortunaParsers
+from selenium.webdriver.support import expected_conditions as EC
+from datetime import datetime
 
 
 class FortunaScraper(Scraper):
@@ -11,6 +13,7 @@ class FortunaScraper(Scraper):
         super().__init__(site_path)
         self.competition_boxes: list = []
         self.events_objects: list = []
+
 
     def close_cookie_msg(self):
         try:
@@ -29,14 +32,14 @@ class FortunaScraper(Scraper):
             self.driver.execute_script(
                 "window.scrollTo(0, document.body.scrollHeight);"
             )
-            time.sleep(2)
+            time.sleep(1)
             new_height = self.driver.execute_script(
                 "return document.body.scrollHeight"
             )
             if new_height == last_height:
                 break
             last_height = new_height
-        time.sleep(5)
+        time.sleep(1)
 
     def get_segments(self):
         try:
@@ -59,6 +62,7 @@ class FortunaScraper(Scraper):
         try:
             self.close_cookie_msg()
             self.get_whole_site()
+            self.get_whole_site() # to be sure that whole site is unwraped
             self.get_segments()
             self.get_all_events_objects()
         except Exception as e:
@@ -91,8 +95,6 @@ class FortunaTwoWayBets(FortunaScraper):
             except Exception as e:
                 pass  # TODO: logger
 
-            i += 1
-
 
 class FortunaThreeWayBets(FortunaScraper):
     def __init__(self, site_path: str) -> None:
@@ -101,7 +103,6 @@ class FortunaThreeWayBets(FortunaScraper):
 
     def get_events_values(self):
         parser = FortunaParsers()
-        i = 1
         for event in self.events_objects:
             try:
                 event_name = event.find_element(
@@ -121,5 +122,3 @@ class FortunaThreeWayBets(FortunaScraper):
             except Exception as e:
                 # print(event_name,e)TODO: logger
                 pass
-
-            i += 1

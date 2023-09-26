@@ -1,6 +1,7 @@
 from selenium import webdriver
 from selenium.common.exceptions import SessionNotCreatedException
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.support.ui import WebDriverWait
 
 
 class Scraper:
@@ -13,3 +14,5 @@ class Scraper:
             self.driver.get(site_path)
         except SessionNotCreatedException as e:
             print(e)
+
+        self.wait = WebDriverWait(self.driver, 20)
