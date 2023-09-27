@@ -13,7 +13,7 @@ class BetclicScraper(Scraper):
 
     def close_cookie_msg(self):
         pass
-        #Betclicl dont have cookies msg box LOL
+        # Betclicl dont have cookies msg box LOL
 
     def get_whole_site(self):
         last_height = self.driver.execute_script(
@@ -35,10 +35,14 @@ class BetclicScraper(Scraper):
     def get_segments(self):
         try:
             boxes = self.driver.find_elements(
-                By.XPATH, '/html/body/app-desktop/div[1]/div/bcdk-content-scroller/div/sports-all-offer/sports-events-list/bcdk-vertical-scroller/div/div[2]/div/div/div[*]'
+                By.XPATH,
+                "/html/body/app-desktop/div[1]/div/bcdk-content-scroller/div/sports-all-offer/sports-events-list/bcdk-vertical-scroller/div/div[2]/div/div/div[*]",
             )
             for box in boxes:
-                if box.get_attribute("class") == "groupEvents ng-star-inserted":
+                if (
+                    box.get_attribute("class")
+                    == "groupEvents ng-star-inserted"
+                ):
                     self.competition_boxes.append(box)
         except NoSuchElementException as e:
             print(e)
@@ -50,8 +54,8 @@ class BetclicScraper(Scraper):
                 By.XPATH, "./div[2]/sports-events-event[*]"
             ):
                 self.events_objects[event] = box.find_element(
-                By.CLASS_NAME, "groupEvents_headTitle"
-            ).text
+                    By.CLASS_NAME, "groupEvents_headTitle"
+                ).text
         print(len(self.events_objects))
 
     def get_events_from_site(self):
@@ -63,6 +67,7 @@ class BetclicScraper(Scraper):
         # except Exception as e:
         #     print(e)
 
+
 class BetclicTwoWayBets(BetclicScraper):
     def __init__(self, site_path: str) -> None:
         super().__init__(site_path)
@@ -73,19 +78,55 @@ class BetclicTwoWayBets(BetclicScraper):
         for event, date in self.events_objects.items():
             try:
                 home_name = event.find_element(
-                    By.XPATH, "./a/div/scoreboards-scoreboard/scoreboards-scoreboard-global/div/div[1]/div"
+                    By.XPATH,
+                    "./a/div/scoreboards-scoreboard/scoreboards-scoreboard-global/div/div[1]/div",
                 ).text
                 away_name = event.find_element(
-                    By.XPATH, "./a/div/scoreboards-scoreboard/scoreboards-scoreboard-global/div/div[3]/div"
+                    By.XPATH,
+                    "./a/div/scoreboards-scoreboard/scoreboards-scoreboard-global/div/div[3]/div",
                 ).text
                 home_team_win = event.find_element(
-                    By.XPATH, "./a/sports-events-event-markets-v2/sports-markets-default-v2/div/sports-selections-selection[1]/div[1]/span[2]"
+                    By.XPATH,
+                    "./a/sports-events-event-markets-v2/sports-markets-default-v2/div/sports-selections-selection[1]/div[1]/span[2]",
                 ).text
                 away_team_win = event.find_element(
-                    By.XPATH, "./a/sports-events-event-markets-v2/sports-markets-default-v2/div/sports-selections-selection[2]/div[1]/span[2]"
+                    By.XPATH,
+                    "./a/sports-events-event-markets-v2/sports-markets-default-v2/div/sports-selections-selection[2]/div[1]/span[2]",
                 ).text
                 event_date = date
-                time.sleep(0.01)
-                print(home_name+ ' ' + away_name,home_team_win,away_team_win, event_date)
+            except Exception as e:
+                print(e)
+
+
+class BetclicThreeWayBets(BetclicScraper):
+    def __init__(self, site_path: str) -> None:
+        super().__init__(site_path)
+        self.get_events_from_site()
+
+    def get_events_values(self):
+        # parser = FortunaParsers()
+        for event, date in self.events_objects.items():
+            try:
+                home_name = event.find_element(
+                    By.XPATH,
+                    "./a/div/scoreboards-scoreboard/scoreboards-scoreboard-global/div/div[1]/div",
+                ).text
+                away_name = event.find_element(
+                    By.XPATH,
+                    "./a/div/scoreboards-scoreboard/scoreboards-scoreboard-global/div/div[3]/div",
+                ).text
+                home_team_win = event.find_element(
+                    By.XPATH,
+                    "./a/sports-events-event-markets-v2/sports-markets-default-v2/div/sports-selections-selection[1]/div/span[2]",
+                ).text
+                draw = event.find_element(
+                    By.XPATH,
+                    "./a/sports-events-event-markets-v2/sports-markets-default-v2/div/sports-selections-selection[2]/div/span[2]",
+                ).text
+                away_team_win = event.find_element(
+                    By.XPATH,
+                    "./a/sports-events-event-markets-v2/sports-markets-default-v2/div/sports-selections-selection[3]/div/span[2]",
+                ).text
+                event_date = date
             except Exception as e:
                 print(e)
