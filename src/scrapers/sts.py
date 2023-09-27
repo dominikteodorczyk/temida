@@ -2,6 +2,7 @@ from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
 from scrapers.base import Scraper
 import time
+from utils.parsers import STSParsers
 
 
 class STSScraper(Scraper):
@@ -59,3 +60,35 @@ class STSScraper(Scraper):
             self.get_all_events_objects()
         except Exception as e:
             print(e)
+
+class STSTwoWayBets(STSScraper):
+    def __init__(self, site_path: str) -> None:
+        super().__init__(site_path)
+        self.get_events_from_site()
+
+    def get_events_values(self):
+        parser = STSParsers()
+        i = 1
+        for event in self.events_objects:
+            try:
+                home_player = event.find_element(
+                    By.XPATH, "./div/div[2]/div[1]/a/bb-score/div/div/div/p[1]"
+                ).text
+                away_player = event.find_element(
+                    By.XPATH, "./div/div[2]/div[1]/a/bb-score/div/div/div/p[2]"
+                ).text
+                home_team_win = event.find_element(
+                    By.XPATH, "./div/div[2]/div[2]/bb-opportunity/div/div/bb-odd[1]/div/div/div[2]"
+                ).text
+                away_team_win = event.find_element(
+                    By.XPATH, "./div/div[2]/div[2]/bb-opportunity/div/div/bb-odd[2]/div/div/div[2]"
+                ).text
+                event_date = event.find_element(
+                    By.XPATH, "./div/div[1]/div[1]/a/bb-score-header/div/div/div/div/span[1]"
+                ).text
+                time.sleep(0.01)
+                print(home_player,away_player,home_team_win,away_team_win,event_date)
+            except Exception as e:
+                pass  # TODO: logger
+
+# ./div/div[2]/bb-match[*]
