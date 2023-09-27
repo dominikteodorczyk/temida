@@ -21,3 +21,20 @@ class FortunaParsers:
         away = self.parse_away(even_name)[:4]
         date = self.parse_date(event_date).replace('.','')
         return f'{home}_{away}_{date}'
+
+class STSParsers:
+
+    def __init__(self) -> None:
+        pass
+
+    def parse_home(self,event_name:str) -> str:
+        pass
+
+    def parse_away(self,event_name:str) -> str:
+        pass
+
+    def parse_date(self,event_date:str) -> str:
+        pass
+
+    def parse_event_code(self,even_name:str,event_date:str) -> str:
+        pass
