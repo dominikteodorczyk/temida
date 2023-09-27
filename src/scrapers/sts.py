@@ -61,6 +61,7 @@ class STSScraper(Scraper):
         except Exception as e:
             print(e)
 
+
 class STSTwoWayBets(STSScraper):
     def __init__(self, site_path: str) -> None:
         super().__init__(site_path)
@@ -78,17 +79,19 @@ class STSTwoWayBets(STSScraper):
                     By.XPATH, "./div/div[2]/div[1]/a/bb-score/div/div/div/p[2]"
                 ).text
                 home_team_win = event.find_element(
-                    By.XPATH, "./div/div[2]/div[2]/bb-opportunity/div/div/bb-odd[1]/div/div/div[2]"
+                    By.XPATH,
+                    "./div/div[2]/div[2]/bb-opportunity/div/div/bb-odd[1]/div/div/div[2]",
                 ).text
                 away_team_win = event.find_element(
-                    By.XPATH, "./div/div[2]/div[2]/bb-opportunity/div/div/bb-odd[2]/div/div/div[2]"
+                    By.XPATH,
+                    "./div/div[2]/div[2]/bb-opportunity/div/div/bb-odd[2]/div/div/div[2]",
                 ).text
                 event_date = event.find_element(
-                    By.XPATH, "./div/div[1]/div[1]/a/bb-score-header/div/div/div/div/span[1]"
+                    By.XPATH,
+                    "./div/div[1]/div[1]/a/bb-score-header/div/div/div/div/span[1]",
                 ).text
-                time.sleep(0.01)
             except Exception as e:
-                pass  # TODO: logger
+                print(e)
 
 
 class STSThreeWayBets(STSScraper):
@@ -108,17 +111,20 @@ class STSThreeWayBets(STSScraper):
                     By.XPATH, "./div/div[2]/div[1]/a/bb-score/div/div/div/p[2]"
                 ).text
                 home_team_win = event.find_element(
-                    By.XPATH, "./div/div[2]/div[2]/bb-opportunity/div/div/bb-odd[1]/div/div/div[2]"
+                    By.XPATH,
+                    "./div/div[2]/div[2]/bb-opportunity/div/div/bb-odd[1]/div/div/div[2]",
                 ).text
                 draw = event.find_element(
-                    By.XPATH, "./div/div[2]/div[2]/bb-opportunity/div/div/bb-odd[2]/div/div/div[2]"
+                    By.XPATH,
+                    "./div/div[2]/div[2]/bb-opportunity/div/div/bb-odd[2]/div/div/div[2]",
                 ).text
                 away_team_win = event.find_element(
-                    By.XPATH, "./div/div[2]/div[2]/bb-opportunity/div/div/bb-odd[3]/div/div/div[2]"
+                    By.XPATH,
+                    "./div/div[2]/div[2]/bb-opportunity/div/div/bb-odd[3]/div/div/div[2]",
                 ).text
                 event_date = event.find_element(
-                    By.XPATH, "./div/div[1]/div[1]/a/bb-score-header/div/div/div/div/span[1]"
+                    By.XPATH,
+                    "./div/div[1]/div[1]/a/bb-score-header/div/div/div/div/span[1]",
                 ).text
-                time.sleep(0.01)
             except Exception as e:
-                pass  # TODO: logger
+                print(e)

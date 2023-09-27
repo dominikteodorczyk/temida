@@ -32,7 +32,7 @@ class FortunaScraper(Scraper):
             self.driver.execute_script(
                 "window.scrollTo(0, document.body.scrollHeight);"
             )
-            time.sleep(1)
+            time.sleep(3)
             new_height = self.driver.execute_script(
                 "return document.body.scrollHeight"
             )
@@ -91,9 +91,8 @@ class FortunaTwoWayBets(FortunaScraper):
                 event_date = event.find_element(
                     By.CLASS_NAME, "event-datetime"
                 ).text
-                time.sleep(0.01)
             except Exception as e:
-                pass  # TODO: logger
+                print(e)
 
 
 class FortunaThreeWayBets(FortunaScraper):
@@ -118,7 +117,5 @@ class FortunaThreeWayBets(FortunaScraper):
                 event_date = event.find_element(
                     By.CLASS_NAME, "event-datetime"
                 ).text
-                time.sleep(0.01)
             except Exception as e:
-                # print(event_name,e)TODO: logger
-                pass
+                print(e)
