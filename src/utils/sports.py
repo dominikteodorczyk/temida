@@ -52,3 +52,21 @@ class Fortuna:
         self.table_tennis = 'https://www.efortuna.pl/zaklady-bukmacherskie/tenis-stolowy'
         self.futsal = 'https://www.efortuna.pl/zaklady-bukmacherskie/futsal'
         self.snooker = 'https://www.efortuna.pl/zaklady-bukmacherskie/snooker'
+
+class Betclic:
+
+    def __init__(self) -> None:
+        self.legal = True
+        self.football = 'https://www.betclic.pl/pilka-nozna-s1'
+        self.hokey = 'https://www.betclic.pl/hokej-s13'
+        self.tennis = 'https://www.betclic.pl/tenis-s2'
+        self.basketball = 'https://www.betclic.pl/koszykowka-s4'
+        self.volleyball = 'https://www.betclic.pl/siatkowka-s8'
+        self.handball = 'https://www.betclic.pl/pilka-reczna-s9'
+        self.mma = 'https://www.betclic.pl/sztuki-walki-s23'
+        self.boxing = 'https://www.betclic.pl/boks-s16'
+        self.baseball = None
+        self.rugby = 'https://www.betclic.pl/rugby-xv-s5'
+        self.table_tennis = None
+        self.futsal = 'https://www.betclic.pl/futsal-s56'
+        self.snooker = 'https://www.betclic.pl/snooker-s54'
