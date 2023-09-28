@@ -12,8 +12,13 @@ class BetclicScraper(Scraper):
         self.events_objects: dict = {}
 
     def close_cookie_msg(self):
-        pass
-        # Betclicl dont have cookies msg box LOL
+        try:
+            close_button = self.driver.find_element(
+                By.XPATH, '//*[@id="popin_tc_privacy_button_2"]'
+            )
+            close_button.click()
+        except Exception as e:
+            print("Can't close cookies msg:", e)
 
     def get_whole_site(self):
         last_height = self.driver.execute_script(
