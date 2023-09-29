@@ -8,7 +8,7 @@ class SuperbetScraper(Scraper):
     def __init__(self, site_path: str) -> None:
         super().__init__(site_path)
         self.competition_boxes: list = []
-        self.events_objects: dict = {}
+        self.events_objects: list = []
 
     def close_cookie_msg(self):
         try:
@@ -40,27 +40,27 @@ class SuperbetScraper(Scraper):
 
     def get_segments(self):
         try:
-            boxes = self.driver.find_elements(
+            self.competition_boxes = self.driver.find_elements(
                 By.XPATH,
-                "/html/body/app-desktop/div[1]/div/bcdk-content-scroller/div/sports-all-offer/sports-events-list/bcdk-vertical-scroller/div/div[2]/div/div/div[*]",
+                "/html/body/div[1]/div/div/div[1]/div/div[2]/div/div[3]/div/div/div/div/div[1]/div/div[*]",
             )
-            for box in boxes:
-                if (
-                    box.get_attribute("class")
-                    == "groupEvents ng-star-inserted"
-                ):
-                    self.competition_boxes.append(box)
         except NoSuchElementException as e:
             print(e)
         print(len(self.competition_boxes))
 
-//*[@id="S-106"]
+    def get_all_events_objects(self):
+        for box in self.competition_boxes:
+            for event in box.find_elements(
+                By.XPATH, "./div[*]"
+            ):
+                self.events_objects.append(event)
+        print(len(self.events_objects))
 
     def get_events_from_site(self):
         self.close_cookie_msg()
         self.get_whole_site()
-        # self.get_whole_site()
-        # self.get_segments()
-        # self.get_all_events_objects()
+        self.get_whole_site()
+        self.get_segments()
+        self.get_all_events_objects()
         # except Exception as e:
         #     print(e)
