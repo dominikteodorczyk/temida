@@ -70,3 +70,21 @@ class Betclic:
         self.table_tennis = None
         self.futsal = 'https://www.betclic.pl/futsal-s56'
         self.snooker = 'https://www.betclic.pl/snooker-s54'
+
+class Superbet:
+
+    def __init__(self) -> None:
+        self.legal = True
+        self.football = 'https://superbet.pl/zaklady-bukmacherskie/pilka-nozna'
+        self.hokey = 'https://superbet.pl/zaklady-bukmacherskie/hokej-na-lodzie'
+        self.tennis = 'https://superbet.pl/zaklady-bukmacherskie/tenis'
+        self.basketball = 'https://superbet.pl/zaklady-bukmacherskie/koszykowka'
+        self.volleyball = 'https://superbet.pl/zaklady-bukmacherskie/siatkowka'
+        self.handball = 'https://superbet.pl/zaklady-bukmacherskie/pilka-reczna'
+        self.mma = 'https://superbet.pl/zaklady-bukmacherskie/sporty-walki'
+        self.boxing = 'https://superbet.pl/zaklady-bukmacherskie/boks'
+        self.baseball = 'https://superbet.pl/zaklady-bukmacherskie/baseball'
+        self.rugby = 'https://superbet.pl/zaklady-bukmacherskie/rugby'
+        self.table_tennis = 'https://superbet.pl/zaklady-bukmacherskie/tenis-stolowy'
+        self.futsal = 'https://superbet.pl/zaklady-bukmacherskie/futsal'
+        self.snooker = None
