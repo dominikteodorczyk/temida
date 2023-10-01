@@ -1,0 +1,1 @@
+Business logic test of the application performing arbitration.

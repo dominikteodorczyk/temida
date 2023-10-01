@@ -1,0 +1,1 @@
+Package containing tools necessary for scraper construction and application logic, as well as technical tools such as logger.
