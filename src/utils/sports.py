@@ -88,3 +88,21 @@ class Superbet:
         self.table_tennis = 'https://superbet.pl/zaklady-bukmacherskie/tenis-stolowy'
         self.futsal = 'https://superbet.pl/zaklady-bukmacherskie/futsal'
         self.snooker = None
+
+class Forbet:
+
+    def __init__(self) -> None:
+        self.legal = True
+        self.football = 'https://www.iforbet.pl/zaklady-bukmacherskie/1'
+        self.hokey = 'https://www.iforbet.pl/zaklady-bukmacherskie/4'
+        self.tennis = 'https://www.iforbet.pl/zaklady-bukmacherskie/5'
+        self.basketball = 'https://www.iforbet.pl/zaklady-bukmacherskie/2'
+        self.volleyball = 'https://www.iforbet.pl/zaklady-bukmacherskie/10'
+        self.handball = 'https://www.iforbet.pl/zaklady-bukmacherskie/6'
+        self.mma = 'https://www.iforbet.pl/zaklady-bukmacherskie/41'
+        self.boxing = 'https://www.iforbet.pl/zaklady-bukmacherskie/40'
+        self.baseball = 'https://www.iforbet.pl/zaklady-bukmacherskie/3'
+        self.rugby = 'https://www.iforbet.pl/zaklady-bukmacherskie/12'
+        self.table_tennis = 'https://www.iforbet.pl/zaklady-bukmacherskie/20'
+        self.futsal = None
+        self.snooker = 'https://www.iforbet.pl/zaklady-bukmacherskie/19'
