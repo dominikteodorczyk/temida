@@ -52,14 +52,14 @@ class TwoWayBetEvent(BetEvent):
 
     @classmethod
     def create_from_data(cls, bukmacher_data, parser):
-        home_player = parser.parse_home_name(bukmacher_data.get["home_team"])
-        away_player = parser.parse_away_name(bukmacher_data.get["away_team"])
+        home_player = parser.parse_home_name(bukmacher_data["home_player"])
+        away_player = parser.parse_away_name(bukmacher_data["away_player"])
         event_name = parser.parse_event_name(
-            bukmacher_data.get("home_team", "away_team")
+            bukmacher_data["home_player"],bukmacher_data["away_player"]
         )
-        event_date = parser.parse_date(bukmacher_data["date"])
-        home_team_win = parser.parse_home_win(bukmacher_data["home_win"])
-        away_team_win = parser.parse_away_win(bukmacher_data["away_win"])
+        event_date = parser.parse_date(bukmacher_data["event_date"])
+        home_team_win = parser.parse_home_win(bukmacher_data["home_team_win"])
+        away_team_win = parser.parse_away_win(bukmacher_data["away_team_win"])
         return cls(
             event_name,
             home_player,
@@ -106,15 +106,15 @@ class ThreeWayBetEvent(BetEvent):
 
     @classmethod
     def create_from_data(cls, bukmacher_data, parser):
-        home_player = parser.parse_home_name(bukmacher_data.get["home_team"])
-        away_player = parser.parse_away_name(bukmacher_data.get["away_team"])
+        home_player = parser.parse_home_name(bukmacher_data["home_player"])
+        away_player = parser.parse_away_name(bukmacher_data["away_player"])
         event_name = parser.parse_event_name(
-            bukmacher_data.get("home_team", "away_team")
+            bukmacher_data["home_player"],bukmacher_data["away_player"]
         )
-        event_date = parser.parse_date(bukmacher_data["date"])
-        home_team_win = parser.parse_home_win(bukmacher_data["home_win"])
+        event_date = parser.parse_date(bukmacher_data["event_date"])
+        home_team_win = parser.parse_home_win(bukmacher_data["home_team_win"])
         draw = parser.parse_draw(bukmacher_data["draw"])
-        away_team_win = parser.parse_away_win(bukmacher_data["away_win"])
+        away_team_win = parser.parse_away_win(bukmacher_data["away_team_win"])
         return cls(
             event_name,
             home_player,
