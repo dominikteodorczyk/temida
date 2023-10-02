@@ -72,9 +72,9 @@ class FortunaScraper(Scraper):
 class FortunaTwoWayBets(FortunaScraper):
     def __init__(self, site_path: str) -> None:
         super().__init__(site_path)
-        self.get_events_from_site()
 
     def get_events_values(self):
+        self.get_events_from_site()
         parser = FortunaParsers()
         i = 1
         for event in self.events_objects:
@@ -98,9 +98,9 @@ class FortunaTwoWayBets(FortunaScraper):
 class FortunaThreeWayBets(FortunaScraper):
     def __init__(self, site_path: str) -> None:
         super().__init__(site_path)
-        self.get_events_from_site()
 
     def get_events_values(self):
+        self.get_events_from_site()
         parser = FortunaParsers()
         for event in self.events_objects:
             try:
