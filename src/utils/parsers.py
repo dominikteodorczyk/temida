@@ -38,7 +38,7 @@ class FortunaParser(Parser):
     @staticmethod
     def parse_date(date_str):
         today = datetime.now().date()
-        if today.month >= datetime.strptime(date_str, "%d.%m.%Y").month:
+        if today.month <= datetime.strptime(date_str, "%d.%m.%Y").month:
             return datetime.strptime(f"{date_str}.{datetime.now().year}", "%d.%m.%Y")
         else:
             return datetime.strptime(f"{date_str}.{datetime.now().year + 1}", "%d.%m.%Y")
@@ -99,6 +99,36 @@ class BetclicParser(Parser):
     @staticmethod
     def parse_away_name(away_name):
         return away_name.strip().upper()
+
+class SuperbetParser(Parser):
+
+    @staticmethod
+    def parse_date(date_str):
+        current_date = datetime.now().date()
+        if date_str in ['PON.', 'WT.', 'ŚR.', 'CZW.', 'PT.', 'SOB.', 'NIEDZ.']:
+            weekday_mapping = {'PON.': 0, 'WT.': 1, 'ŚR.': 2, 'CZW.': 3, 'PT.': 4, 'SOB.': 5, 'NIEDZ.': 6}
+            days_until_next_weekday = (weekday_mapping[date_str] - current_date.weekday() + 7) % 7
+            next_weekday = current_date + timedelta(days=days_until_next_weekday)
+            return next_weekday.strftime("%d.%m.%Y")
+        else:
+            today = datetime.now().date()
+            if today.month <= datetime.strptime(date_str, "%d.%m.%Y").month:
+                return datetime.strptime(f"{date_str}.{datetime.now().year}", "%d.%m.%Y")
+            else:
+                return datetime.strptime(f"{date_str}.{datetime.now().year + 1}", "%d.%m.%Y")
+
+    @staticmethod
+    def parse_event_n_names(*args):
+        return f'{args[0].strip()} - {args[1].strip()}'
+
+    @staticmethod
+    def parse_home_name(home_name):
+        return home_name.strip().upper()
+
+    @staticmethod
+    def parse_away_name(away_name):
+        return away_name.strip().upper()
+
 
 
 # :TODO: propozycja algorytmu najdującego podobieństwo
