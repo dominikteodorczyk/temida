@@ -3,7 +3,8 @@ from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.support import expected_conditions as EC
 from scrapers.base import Scraper
 import time
-
+from utils.parsers import BetclicParser
+from utils.events import TwoWayBetEvent, ThreeWayBetEvent
 
 class BetclicScraper(Scraper):
     def __init__(self, site_path: str) -> None:
@@ -44,10 +45,7 @@ class BetclicScraper(Scraper):
                 "/html/body/app-desktop/div[1]/div/bcdk-content-scroller/div/sports-all-offer/sports-events-list/bcdk-vertical-scroller/div/div[2]/div/div/div[*]",
             )
             for box in boxes:
-                if (
-                    box.get_attribute("class")
-                    == "groupEvents ng-star-inserted"
-                ):
+                if (box.get_attribute("class") == "groupEvents ng-star-inserted") or (box.get_attribute("class") == "groupEvents"):
                     self.competition_boxes.append(box)
         except NoSuchElementException as e:
             print(e)
@@ -83,23 +81,26 @@ class BetclicTwoWayBets(BetclicScraper):
         # parser = FortunaParsers()
         for event, date in self.events_objects.items():
             try:
-                home_name = event.find_element(
+                event_data = {
+                    'home_player' : event.find_element(
                     By.XPATH,
                     "./a/div/scoreboards-scoreboard/scoreboards-scoreboard-global/div/div[1]/div",
-                ).text
-                away_name = event.find_element(
+                ).text,
+                    'away_player' : event.find_element(
                     By.XPATH,
                     "./a/div/scoreboards-scoreboard/scoreboards-scoreboard-global/div/div[3]/div",
-                ).text
-                home_team_win = event.find_element(
+                ).text,
+                    'home_team_win' : event.find_element(
                     By.XPATH,
                     "./a/sports-events-event-markets-v2/sports-markets-default-v2/div/sports-selections-selection[1]/div[1]/span[2]",
-                ).text
-                away_team_win = event.find_element(
+                ).text,
+                    'away_team_win' : event.find_element(
                     By.XPATH,
                     "./a/sports-events-event-markets-v2/sports-markets-default-v2/div/sports-selections-selection[2]/div[1]/span[2]",
-                ).text
-                event_date = date
+                ).text,
+                    'event_date' : date}
+                event_obj = TwoWayBetEvent.create_from_data(event_data, BetclicParser())
+                print(event_obj.to_dataframe())
             except Exception as e:
                 print(e)
 
@@ -113,26 +114,29 @@ class BetclicThreeWayBets(BetclicScraper):
         # parser = FortunaParsers()
         for event, date in self.events_objects.items():
             try:
-                home_name = event.find_element(
+                event_data = {
+                'home_player' : event.find_element(
                     By.XPATH,
                     "./a/div/scoreboards-scoreboard/scoreboards-scoreboard-global/div/div[1]/div",
-                ).text
-                away_name = event.find_element(
+                ).text,
+                'away_player' : event.find_element(
                     By.XPATH,
                     "./a/div/scoreboards-scoreboard/scoreboards-scoreboard-global/div/div[3]/div",
-                ).text
-                home_team_win = event.find_element(
+                ).text,
+                'home_team_win' : event.find_element(
                     By.XPATH,
                     "./a/sports-events-event-markets-v2/sports-markets-default-v2/div/sports-selections-selection[1]/div/span[2]",
-                ).text
-                draw = event.find_element(
+                ).text,
+                'draw' : event.find_element(
                     By.XPATH,
                     "./a/sports-events-event-markets-v2/sports-markets-default-v2/div/sports-selections-selection[2]/div/span[2]",
-                ).text
-                away_team_win = event.find_element(
+                ).text,
+                'away_team_win' : event.find_element(
                     By.XPATH,
                     "./a/sports-events-event-markets-v2/sports-markets-default-v2/div/sports-selections-selection[3]/div/span[2]",
-                ).text
-                event_date = date
+                ).text,
+                'event_date' : date}
+                event_obj = ThreeWayBetEvent.create_from_data(event_data, BetclicParser())
+                print(event_obj.to_dataframe())
             except Exception as e:
                 print(e)

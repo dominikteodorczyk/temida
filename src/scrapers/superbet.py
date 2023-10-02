@@ -8,6 +8,8 @@ import time
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from utils.parsers import SuperbetParser
+from utils.events import TwoWayBetEvent, ThreeWayBetEvent
 
 class SuperbetScraper(Scraper):
     def __init__(self, site_path: str) -> None:
@@ -71,18 +73,23 @@ class SuperbetTwoWayBets(SuperbetScraper):
                     By.XPATH, './div[1]/div[2]/div[1]/span[2]').text
                     if f'{home_name}{away_name}' in self.events_objects: pass
                     else:
-                        home_team_win = element.find_element(
+                        event_data = {
+                            'home_player' : home_name,
+                            'away_player' : away_name,
+                            'home_team_win' : element.find_element(
                             By.XPATH,
                             "./div[2]/div[2]/div/div[1]/button/span[4]/span[2]",
-                        ).text
-                        away_team_win = element.find_element(
+                        ).text,
+                            'away_team_win' : element.find_element(
                             By.XPATH,
                             "./div[2]/div[2]/div/div[2]/button/span[4]/span[2]",
-                        ).text
-                        event_date = element.find_element(
+                        ).text,
+                            'event_date' : element.find_element(
                             By.XPATH,
                             "./div[1]/div[1]/span[1]",
-                        ).text
+                        ).text}
+                        event_obj = TwoWayBetEvent.create_from_data(event_data, SuperbetParser())
+                        print(event_obj.to_dataframe())
                         self.events_objects.append(f'{home_name}{away_name}')
                 except Exception as e:
                     print(e)
@@ -113,22 +120,27 @@ class SuperbetThreeWayBets(SuperbetScraper):
                     By.XPATH, './div[1]/div[2]/div[1]/span[2]').text
                     if f'{home_name}{away_name}' in self.events_objects: pass
                     else:
-                        home_team_win = element.find_element(
+                        event_data = {
+                        'home_player' : home_name,
+                        'away_player' : away_name,
+                        'home_team_win' : element.find_element(
                             By.XPATH,
                             "./div[2]/div[2]/div/div[1]/button/span[4]/span[2]",
-                        ).text
-                        draw = element.find_element(
+                        ).text,
+                        'draw' : element.find_element(
                             By.XPATH,
                             "./div[2]/div[2]/div/div[2]/button/span[4]/span[2]",
-                        ).text
-                        away_team_win = element.find_element(
+                        ).text,
+                        'away_team_win' : element.find_element(
                             By.XPATH,
                             "./div[2]/div[2]/div/div[3]/button/span[4]/span[2]",
-                        ).text
-                        event_date = element.find_element(
+                        ).text,
+                        'event_date' : element.find_element(
                             By.XPATH,
                             "./div[1]/div[1]/span[1]",
-                        ).text
+                        ).text}
+                        event_obj = ThreeWayBetEvent.create_from_data(event_data, SuperbetParser())
+                        print(event_obj.to_dataframe())
                         self.events_objects.append(f'{home_name}{away_name}')
                 except Exception as e:
                     print(e)
