@@ -65,9 +65,9 @@ class STSScraper(Scraper):
 class STSTwoWayBets(STSScraper):
     def __init__(self, site_path: str) -> None:
         super().__init__(site_path)
-        self.get_events_from_site()
 
     def get_events_values(self):
+        self.get_events_from_site()
         parser = STSParsers()
         i = 1
         for event in self.events_objects:
@@ -97,9 +97,9 @@ class STSTwoWayBets(STSScraper):
 class STSThreeWayBets(STSScraper):
     def __init__(self, site_path: str) -> None:
         super().__init__(site_path)
-        self.get_events_from_site()
 
     def get_events_values(self):
+        self.get_events_from_site()
         parser = STSParsers()
         i = 1
         for event in self.events_objects:
