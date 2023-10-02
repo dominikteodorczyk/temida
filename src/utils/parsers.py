@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 class Parser:
 
@@ -74,6 +74,31 @@ class STSParser(Parser):
     def parse_away_name(away_name):
         return away_name.strip().upper()
 
+
+class BetclicParser(Parser):
+
+    @staticmethod
+    def parse_date(date_str):
+        if date_str == 'Dzisiaj':
+            return datetime.now().strftime("%d.%m.%Y")
+        elif date_str == 'Jutro':
+            return (datetime.now() + timedelta(days=1)).strftime("%d.%m.%Y")
+        elif date_str == 'Pojutrze':
+            return (datetime.now() + timedelta(days=2)).strftime("%d.%m.%Y")
+        else:
+            return datetime.strptime(f"{date_str}", "%d.%m.%Y")
+
+    @staticmethod
+    def parse_event_n_names(*args):
+        return f'{args[0].strip()} - {args[1].strip()}'
+
+    @staticmethod
+    def parse_home_name(home_name):
+        return home_name.strip().upper()
+
+    @staticmethod
+    def parse_away_name(away_name):
+        return away_name.strip().upper()
 
 
 # :TODO: propozycja algorytmu najdującego podobieństwo
