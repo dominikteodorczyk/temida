@@ -76,9 +76,10 @@ class BetclicScraper(Scraper):
 class BetclicTwoWayBets(BetclicScraper):
     def __init__(self, site_path: str) -> None:
         super().__init__(site_path)
-        self.get_events_from_site()
+
 
     def get_events_values(self):
+        self.get_events_from_site()
         # parser = FortunaParsers()
         for event, date in self.events_objects.items():
             try:
@@ -106,9 +107,9 @@ class BetclicTwoWayBets(BetclicScraper):
 class BetclicThreeWayBets(BetclicScraper):
     def __init__(self, site_path: str) -> None:
         super().__init__(site_path)
-        self.get_events_from_site()
 
     def get_events_values(self):
+        self.get_events_from_site()
         # parser = FortunaParsers()
         for event, date in self.events_objects.items():
             try:
