@@ -22,11 +22,11 @@ class FortunaParser(Parser):
         if today.month <= datetime.strptime(date_str[:5], "%d.%m").month:
             return datetime.strptime(
                 f"{date_str[:5]}.{datetime.now().year}", "%d.%m.%Y"
-            )
+            ).date()
         else:
             return datetime.strptime(
                 f"{date_str[:5]}.{datetime.now().year + 1}", "%d.%m.%Y"
-            )
+            ).date()
 
     @staticmethod
     def parse_event_name(*args):
@@ -47,7 +47,7 @@ class STSParser(Parser):
         if date_str == "Dzisiaj":
             return datetime.now().strftime("%Y-%m-%d")
         else:
-            return datetime.strptime(f"{date_str}", "%d.%m.%Y")
+            return datetime.strptime(f"{date_str}", "%d.%m.%Y").date()
 
     @staticmethod
     def parse_event_name(*args):
@@ -72,7 +72,7 @@ class BetclicParser(Parser):
         elif date_str == "Pojutrze":
             return (datetime.now() + timedelta(days=2)).strftime("%Y-%m-%d")
         else:
-            return datetime.strptime(f"{date_str}", "%d.%m.%Y")
+            return datetime.strptime(f"{date_str}", "%d.%m.%Y").date()
 
     @staticmethod
     def parse_event_name(*args):
@@ -113,11 +113,11 @@ class SuperbetParser(Parser):
             if today.month <= datetime.strptime(date_str, "%d.%m").month:
                 return datetime.strptime(
                     f"{date_str}.{datetime.now().year}", "%d.%m.%Y"
-                )
+                ).date()
             else:
                 return datetime.strptime(
                     f"{date_str}.{datetime.now().year + 1}", "%d.%m.%Y"
-                )
+                ).date()
 
     @staticmethod
     def parse_event_name(*args):

@@ -3,7 +3,12 @@ from selenium.common.exceptions import NoSuchElementException
 from scrapers.base import Scraper
 import time
 from utils.parsers import STSParser
-from utils.events import TwoWayBetEvent, ThreeWayBetEvent
+from utils.events import (
+    TwoWayBetEvent,
+    ThreeWayBetEvent,
+    TwoWayBetEventsTable,
+    ThreeWayBetEventsTable,
+)
 
 
 class STSScraper(Scraper):
@@ -43,15 +48,12 @@ class STSScraper(Scraper):
         except NoSuchElementException as e:
             print(e)
 
-        print(len(self.competition_boxes))
-
     def get_all_events_objects(self):
         for box in self.competition_boxes:
             for event in box.find_elements(
                 By.XPATH, "./div/div[2]/bb-match[*]"
             ):
                 self.events_objects.append(event)
-        print(len(self.events_objects))
 
     def get_events_from_site(self):
         try:
@@ -66,32 +68,39 @@ class STSScraper(Scraper):
 class STSTwoWayBets(STSScraper):
     def __init__(self, site_path: str) -> None:
         super().__init__(site_path)
+        self.events_data = TwoWayBetEventsTable("STS")
 
     def get_events_values(self):
         self.get_events_from_site()
         for event in self.events_objects:
             try:
                 event_data = {
-                'home_player' : event.find_element(
-                    By.XPATH, "./div/div[2]/div[1]/a/bb-score/div/div/div/p[1]"
-                ).text,
-                'away_player' : event.find_element(
-                    By.XPATH, "./div/div[2]/div[1]/a/bb-score/div/div/div/p[2]"
-                ).text,
-                'home_team_win' : event.find_element(
-                    By.XPATH,
-                    "./div/div[2]/div[2]/bb-opportunity/div/div/bb-odd[1]/div/div/div[2]",
-                ).text,
-                'away_team_win' : event.find_element(
-                    By.XPATH,
-                    "./div/div[2]/div[2]/bb-opportunity/div/div/bb-odd[2]/div/div/div[2]",
-                ).text,
-                'event_date' : event.find_element(
-                    By.XPATH,
-                    "./div/div[1]/div[1]/a/bb-score-header/div/div/div/div/span[1]",
-                ).text}
-                event_obj = TwoWayBetEvent.create_from_data(event_data, STSParser())
-                print(event_obj.to_dataframe())
+                    "home_player": event.find_element(
+                        By.XPATH,
+                        "./div/div[2]/div[1]/a/bb-score/div/div/div/p[1]",
+                    ).text,
+                    "away_player": event.find_element(
+                        By.XPATH,
+                        "./div/div[2]/div[1]/a/bb-score/div/div/div/p[2]",
+                    ).text,
+                    "home_team_win": event.find_element(
+                        By.XPATH,
+                        "./div/div[2]/div[2]/bb-opportunity/div/div/bb-odd[1]/div/div/div[2]",
+                    ).text,
+                    "away_team_win": event.find_element(
+                        By.XPATH,
+                        "./div/div[2]/div[2]/bb-opportunity/div/div/bb-odd[2]/div/div/div[2]",
+                    ).text,
+                    "event_date": event.find_element(
+                        By.XPATH,
+                        "./div/div[1]/div[1]/a/bb-score-header/div/div/div/div/span[1]",
+                    ).text,
+                }
+                self.events_data.put(
+                    TwoWayBetEvent.create_from_data(event_data, STSParser())
+                )
+            except NoSuchElementException as e:
+                pass
             except Exception as e:
                 print(e)
 
@@ -99,39 +108,42 @@ class STSTwoWayBets(STSScraper):
 class STSThreeWayBets(STSScraper):
     def __init__(self, site_path: str) -> None:
         super().__init__(site_path)
+        self.events_data = ThreeWayBetEventsTable("STS")
 
     def get_events_values(self):
         self.get_events_from_site()
         for event in self.events_objects:
             try:
                 event_data = {
-                'home_player' : event.find_element(
-                    By.XPATH, "./div/div[2]/div[1]/a/bb-score/div/div/div/p[1]"
-                ).text,
-                'away_player' : event.find_element(
-                    By.XPATH, "./div/div[2]/div[1]/a/bb-score/div/div/div/p[2]"
-                ).text,
-                'home_team_win' : event.find_element(
-                    By.XPATH,
-                    "./div/div[2]/div[2]/bb-opportunity/div/div/bb-odd[1]/div/div/div[2]",
-                ).text,
-                'draw' : event.find_element(
-                    By.XPATH,
-                    "./div/div[2]/div[2]/bb-opportunity/div/div/bb-odd[2]/div/div/div[2]",
-                ).text,
-                'away_team_win' : event.find_element(
-                    By.XPATH,
-                    "./div/div[2]/div[2]/bb-opportunity/div/div/bb-odd[3]/div/div/div[2]",
-                ).text,
-                'event_date' : event.find_element(
-                    By.XPATH,
-                    "./div/div[1]/div[1]/a/bb-score-header/div/div/div/div/span[1]",
-                ).text}
-                event_obj = ThreeWayBetEvent.create_from_data(event_data, STSParser())
-                print(event_obj.to_dataframe())
-            except Exception as e:
-                print(e)
-
-
+                    "home_player": event.find_element(
+                        By.XPATH,
+                        "./div/div[2]/div[1]/a/bb-score/div/div/div/p[1]",
+                    ).text,
+                    "away_player": event.find_element(
+                        By.XPATH,
+                        "./div/div[2]/div[1]/a/bb-score/div/div/div/p[2]",
+                    ).text,
+                    "home_team_win": event.find_element(
+                        By.XPATH,
+                        "./div/div[2]/div[2]/bb-opportunity/div/div/bb-odd[1]/div/div/div[2]",
+                    ).text,
+                    "draw": event.find_element(
+                        By.XPATH,
+                        "./div/div[2]/div[2]/bb-opportunity/div/div/bb-odd[2]/div/div/div[2]",
+                    ).text,
+                    "away_team_win": event.find_element(
+                        By.XPATH,
+                        "./div/div[2]/div[2]/bb-opportunity/div/div/bb-odd[3]/div/div/div[2]",
+                    ).text,
+                    "event_date": event.find_element(
+                        By.XPATH,
+                        "./div/div[1]/div[1]/a/bb-score-header/div/div/div/div/span[1]",
+                    ).text,
+                }
+                self.events_data.put(
+                    ThreeWayBetEvent.create_from_data(event_data, STSParser())
+                )
+            except NoSuchElementException as e:
+                pass
             except Exception as e:
                 print(e)

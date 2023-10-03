@@ -4,7 +4,13 @@ from selenium.webdriver.support import expected_conditions as EC
 from scrapers.base import Scraper
 import time
 from utils.parsers import BetclicParser
-from utils.events import TwoWayBetEvent, ThreeWayBetEvent
+from utils.events import (
+    TwoWayBetEvent,
+    ThreeWayBetEvent,
+    TwoWayBetEventsTable,
+    ThreeWayBetEventsTable,
+)
+
 
 class BetclicScraper(Scraper):
     def __init__(self, site_path: str) -> None:
@@ -45,11 +51,13 @@ class BetclicScraper(Scraper):
                 "/html/body/app-desktop/div[1]/div/bcdk-content-scroller/div/sports-all-offer/sports-events-list/bcdk-vertical-scroller/div/div[2]/div/div/div[*]",
             )
             for box in boxes:
-                if (box.get_attribute("class") == "groupEvents ng-star-inserted") or (box.get_attribute("class") == "groupEvents"):
+                if (
+                    box.get_attribute("class")
+                    == "groupEvents ng-star-inserted"
+                ) or (box.get_attribute("class") == "groupEvents"):
                     self.competition_boxes.append(box)
         except NoSuchElementException as e:
             print(e)
-        print(len(self.competition_boxes))
 
     def get_all_events_objects(self):
         for box in self.competition_boxes:
@@ -59,7 +67,6 @@ class BetclicScraper(Scraper):
                 self.events_objects[event] = box.find_element(
                     By.CLASS_NAME, "groupEvents_headTitle"
                 ).text
-        print(len(self.events_objects))
 
     def get_events_from_site(self):
         self.close_cookie_msg()
@@ -74,7 +81,7 @@ class BetclicScraper(Scraper):
 class BetclicTwoWayBets(BetclicScraper):
     def __init__(self, site_path: str) -> None:
         super().__init__(site_path)
-
+        self.events_data = TwoWayBetEventsTable("BETCLIC")
 
     def get_events_values(self):
         self.get_events_from_site()
@@ -82,25 +89,31 @@ class BetclicTwoWayBets(BetclicScraper):
         for event, date in self.events_objects.items():
             try:
                 event_data = {
-                    'home_player' : event.find_element(
-                    By.XPATH,
-                    "./a/div/scoreboards-scoreboard/scoreboards-scoreboard-global/div/div[1]/div",
-                ).text,
-                    'away_player' : event.find_element(
-                    By.XPATH,
-                    "./a/div/scoreboards-scoreboard/scoreboards-scoreboard-global/div/div[3]/div",
-                ).text,
-                    'home_team_win' : event.find_element(
-                    By.XPATH,
-                    "./a/sports-events-event-markets-v2/sports-markets-default-v2/div/sports-selections-selection[1]/div[1]/span[2]",
-                ).text,
-                    'away_team_win' : event.find_element(
-                    By.XPATH,
-                    "./a/sports-events-event-markets-v2/sports-markets-default-v2/div/sports-selections-selection[2]/div[1]/span[2]",
-                ).text,
-                    'event_date' : date}
-                event_obj = TwoWayBetEvent.create_from_data(event_data, BetclicParser())
-                print(event_obj.to_dataframe())
+                    "home_player": event.find_element(
+                        By.XPATH,
+                        "./a/div/scoreboards-scoreboard/scoreboards-scoreboard-global/div/div[1]/div",
+                    ).text,
+                    "away_player": event.find_element(
+                        By.XPATH,
+                        "./a/div/scoreboards-scoreboard/scoreboards-scoreboard-global/div/div[3]/div",
+                    ).text,
+                    "home_team_win": event.find_element(
+                        By.XPATH,
+                        "./a/sports-events-event-markets-v2/sports-markets-default-v2/div/sports-selections-selection[1]/div[1]/span[2]",
+                    ).text,
+                    "away_team_win": event.find_element(
+                        By.XPATH,
+                        "./a/sports-events-event-markets-v2/sports-markets-default-v2/div/sports-selections-selection[2]/div[1]/span[2]",
+                    ).text,
+                    "event_date": date,
+                }
+                self.events_data.put(
+                    TwoWayBetEvent.create_from_data(
+                        event_data, BetclicParser()
+                    )
+                )
+            except NoSuchElementException as e:
+                pass
             except Exception as e:
                 print(e)
 
@@ -108,6 +121,7 @@ class BetclicTwoWayBets(BetclicScraper):
 class BetclicThreeWayBets(BetclicScraper):
     def __init__(self, site_path: str) -> None:
         super().__init__(site_path)
+        self.events_data = ThreeWayBetEventsTable("BETCLIC")
 
     def get_events_values(self):
         self.get_events_from_site()
@@ -115,28 +129,35 @@ class BetclicThreeWayBets(BetclicScraper):
         for event, date in self.events_objects.items():
             try:
                 event_data = {
-                'home_player' : event.find_element(
-                    By.XPATH,
-                    "./a/div/scoreboards-scoreboard/scoreboards-scoreboard-global/div/div[1]/div",
-                ).text,
-                'away_player' : event.find_element(
-                    By.XPATH,
-                    "./a/div/scoreboards-scoreboard/scoreboards-scoreboard-global/div/div[3]/div",
-                ).text,
-                'home_team_win' : event.find_element(
-                    By.XPATH,
-                    "./a/sports-events-event-markets-v2/sports-markets-default-v2/div/sports-selections-selection[1]/div/span[2]",
-                ).text,
-                'draw' : event.find_element(
-                    By.XPATH,
-                    "./a/sports-events-event-markets-v2/sports-markets-default-v2/div/sports-selections-selection[2]/div/span[2]",
-                ).text,
-                'away_team_win' : event.find_element(
-                    By.XPATH,
-                    "./a/sports-events-event-markets-v2/sports-markets-default-v2/div/sports-selections-selection[3]/div/span[2]",
-                ).text,
-                'event_date' : date}
-                event_obj = ThreeWayBetEvent.create_from_data(event_data, BetclicParser())
-                print(event_obj.to_dataframe())
+                    "home_player": event.find_element(
+                        By.XPATH,
+                        "./a/div/scoreboards-scoreboard/scoreboards-scoreboard-global/div/div[1]/div",
+                    ).text,
+                    "away_player": event.find_element(
+                        By.XPATH,
+                        "./a/div/scoreboards-scoreboard/scoreboards-scoreboard-global/div/div[3]/div",
+                    ).text,
+                    "home_team_win": event.find_element(
+                        By.XPATH,
+                        "./a/sports-events-event-markets-v2/sports-markets-default-v2/div/sports-selections-selection[1]/div/span[2]",
+                    ).text,
+                    "draw": event.find_element(
+                        By.XPATH,
+                        "./a/sports-events-event-markets-v2/sports-markets-default-v2/div/sports-selections-selection[2]/div/span[2]",
+                    ).text,
+                    "away_team_win": event.find_element(
+                        By.XPATH,
+                        "./a/sports-events-event-markets-v2/sports-markets-default-v2/div/sports-selections-selection[3]/div/span[2]",
+                    ).text,
+                    "event_date": date,
+                }
+
+                self.events_data.put(
+                    ThreeWayBetEvent.create_from_data(
+                        event_data, BetclicParser()
+                    )
+                )
+            except NoSuchElementException as e:
+                pass
             except Exception as e:
                 print(e)
