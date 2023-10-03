@@ -39,16 +39,6 @@ class TwoWayBetEvent(BetEvent):
         self.home_team_win = home_team_win
         self.away_team_win = away_team_win
 
-    def to_dataframe(self):
-        data = {
-            "Event Name": [self.event_name],
-            "Home Team": [self.home_player],
-            "Away Team": [self.away_player],
-            "Date": [self.event_date],
-            "Home Win": [self.home_team_win],
-            "Away Win": [self.away_team_win],
-        }
-        return DataFrame(data)
 
     @classmethod
     def create_from_data(cls, bukmacher_data, parser):
@@ -92,18 +82,6 @@ class ThreeWayBetEvent(BetEvent):
         self.away_team_win = away_team_win
         self.draw = draw
 
-    def to_dataframe(self):
-        data = {
-            "Event Name": [self.event_name],
-            "Home Team": [self.home_player],
-            "Away Team": [self.away_player],
-            "Date": [self.event_date],
-            "Home Win": [self.home_team_win],
-            "Draw": [self.draw],
-            "Away Win": [self.away_team_win],
-        }
-        return DataFrame(data)
-
     @classmethod
     def create_from_data(cls, bukmacher_data, parser):
         home_player = parser.parse_home_name(bukmacher_data["home_player"])
@@ -125,30 +103,65 @@ class ThreeWayBetEvent(BetEvent):
             away_team_win,
         )
 
+class BetEventsTable:
 
-class TwoWayBetEventsTable:
+    def __init__(self, bookmaker) -> None:
+        self.bookmaker = bookmaker
+        self.data = DataFrame(columns=['event_name', 'home_player', 'away_player','event_date'])
+
+    def __str__(self) -> str:
+        return f'{self.bookmaker}'
+
+class TwoWayBetEventsTable(BetEventsTable):
     """
     Table of events obtained when scratching a given sport
     at a single bookmaker.
     """
+    def __init__(self, bookmaker) -> None:
+        super().__init__(bookmaker)
+        self.data['home_team_win'] = []
+        self.data['away_team_win'] = []
 
-    def __init__(self) -> None:
-        self.events_list = DataFrame(
-            columns=[
-                "home_player",
-                "away_player",
-                "home_team_win",
-                "away_team_win",
-                "event_date",
-            ]
-        )
-
-    def imput_event(self, event_data: dict):
+    def put(self, event_data: object):
         """
         Method of adding event objects when condensing all events
         of a given sport at a given bookmaker into a table.
         """
-        self.events_list._append({})
+        self.data = self.data._append({
+            'event_name':event_data.event_name,
+            'home_player':event_data.home_player,
+            'away_player':event_data.away_player,
+            'event_date':event_data.event_date,
+            'home_team_win':event_data.home_team_win,
+            'away_team_win':event_data.away_team_win,
+        }, ignore_index=True)
+
+
+class ThreeWayBetEventsTable(BetEventsTable):
+    """
+    Table of events obtained when scratching a given sport
+    at a single bookmaker.
+    """
+    def __init__(self, bookmaker) -> None:
+        super().__init__(bookmaker)
+        self.data['home_team_win'] = []
+        self.data['draw'] = []
+        self.data['away_team_win'] = []
+
+    def put(self, event_data: object):
+        """
+        Method of adding event objects when condensing all events
+        of a given sport at a given bookmaker into a table.
+        """
+        self.data = self.data._append({
+            'event_name':event_data.event_name,
+            'home_player':event_data.home_player,
+            'away_player':event_data.away_player,
+            'event_date':event_data.event_date,
+            'home_team_win':event_data.home_team_win,
+            'draw':event_data.draw,
+            'away_team_win':event_data.away_team_win,
+        }, ignore_index=True)
 
 
 class Event:
