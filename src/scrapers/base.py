@@ -5,8 +5,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 
 class Scraper:
-
-    def __init__(self, site_path:object) -> None:
+    def __init__(self, site_path: object) -> None:
+        self.site_path = site_path
         options = Options()
         options.add_experimental_option("detach", True)
         self.driver = webdriver.Chrome(options=options)

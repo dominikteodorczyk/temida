@@ -10,6 +10,7 @@ from utils.events import (
     TwoWayBetEventsTable,
     ThreeWayBetEventsTable,
 )
+from utils.technical import setup_logger
 
 
 class BetclicScraper(Scraper):
@@ -17,6 +18,8 @@ class BetclicScraper(Scraper):
         super().__init__(site_path)
         self.competition_boxes: list = []
         self.events_objects: dict = {}
+        self.logging = setup_logger(name="BETCLIC", print_logs=True)
+        self.logging.info(f"Starting to collect data: {self.site_path}")
 
     def close_cookie_msg(self):
         try:
@@ -24,8 +27,10 @@ class BetclicScraper(Scraper):
                 By.XPATH, '//*[@id="popin_tc_privacy_button_2"]'
             )
             close_button.click()
+        except NoSuchElementException:
+            self.logging.warning("Can't close cookies msg")
         except Exception as e:
-            print("Can't close cookies msg:", e)
+            self.logging.error(f"Unknown bug, more here: {e}")
 
     def get_whole_site(self):
         last_height = self.driver.execute_script(
@@ -57,7 +62,7 @@ class BetclicScraper(Scraper):
                 ) or (box.get_attribute("class") == "groupEvents"):
                     self.competition_boxes.append(box)
         except NoSuchElementException as e:
-            print(e)
+            self.logging.warning(f"No segment elements")
 
     def get_all_events_objects(self):
         for box in self.competition_boxes:
@@ -69,13 +74,15 @@ class BetclicScraper(Scraper):
                 ).text
 
     def get_events_from_site(self):
-        self.close_cookie_msg()
-        self.get_whole_site()
-        self.get_whole_site()
-        self.get_segments()
-        self.get_all_events_objects()
-        # except Exception as e:
-        #     print(e)
+        try:
+            self.close_cookie_msg()
+            self.get_whole_site()
+            self.get_whole_site()
+            self.get_segments()
+            self.get_all_events_objects()
+        except Exception as e:
+            self.logging.error(f"Unknown bug, more here: {e}")
+        self.logging.info(f"Events collected: {self.site_path}")
 
 
 class BetclicTwoWayBets(BetclicScraper):
@@ -115,7 +122,8 @@ class BetclicTwoWayBets(BetclicScraper):
             except NoSuchElementException as e:
                 pass
             except Exception as e:
-                print(e)
+                self.logging.error(f"Unknown bug, more here: {e}")
+        self.logging.info(f"Data collected: {self.site_path}")
 
 
 class BetclicThreeWayBets(BetclicScraper):
@@ -160,4 +168,5 @@ class BetclicThreeWayBets(BetclicScraper):
             except NoSuchElementException as e:
                 pass
             except Exception as e:
-                print(e)
+                self.logging.error(f"Unknown bug, more here: {e}")
+        self.logging.info(f"Data collected: {self.site_path}")

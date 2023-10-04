@@ -15,12 +15,15 @@ from utils.events import (
     TwoWayBetEventsTable,
     ThreeWayBetEventsTable,
 )
+from utils.technical import setup_logger
 
 
 class SuperbetScraper(Scraper):
     def __init__(self, site_path: str) -> None:
         super().__init__(site_path)
         self.events_objects: list = []
+        self.logging = setup_logger(name="SUPERBET", print_logs=True)
+        self.logging.info(f"Starting to collect data: {self.site_path}")
 
     def close_cookie_msg(self):
         try:
@@ -28,8 +31,10 @@ class SuperbetScraper(Scraper):
                 By.XPATH, '//*[@id="onetrust-accept-btn-handler"]'
             )
             close_button.click()
+        except NoSuchElementException:
+            self.logging.warning("Can't close cookies msg")
         except Exception as e:
-            print("Can't close cookies msg:", e)
+            self.logging.error(f"Unknown bug, more here: {e}")
 
     def get_whole_site(self):
         last_height = self.driver.execute_script(
@@ -52,12 +57,14 @@ class SuperbetScraper(Scraper):
         pass
 
     def get_events_from_site(self):
-        self.close_cookie_msg()
-        self.get_whole_site()
-        self.get_whole_site()
-        self.get_segments()
-        # except Exception as e:
-        #     print(e)
+        try:
+            self.close_cookie_msg()
+            self.get_whole_site()
+            self.get_whole_site()
+            self.get_segments()
+        except Exception as e:
+            self.logging.error(f"Unknown bug, more here: {e}")
+        self.logging.info(f"Events collected: {self.site_path}")
 
 
 class SuperbetTwoWayBets(SuperbetScraper):
@@ -109,7 +116,7 @@ class SuperbetTwoWayBets(SuperbetScraper):
                 except NoSuchElementException as e:
                     pass
                 except Exception as e:
-                    print(e)
+                    self.logging.error(f"Unknown bug, more here: {e}")
             self.driver.execute_script(
                 f"window.scrollTo(0, window.scrollY + {4000});"
             )
@@ -118,6 +125,7 @@ class SuperbetTwoWayBets(SuperbetScraper):
             if height == new_height:
                 break
             height = new_height
+        self.logging.info(f"Data collected: {self.site_path}")
 
 
 class SuperbetThreeWayBets(SuperbetScraper):
@@ -173,7 +181,7 @@ class SuperbetThreeWayBets(SuperbetScraper):
                 except NoSuchElementException as e:
                     pass
                 except Exception as e:
-                    print(e)
+                    self.logging.error(f"Unknown bug, more here: {e}")
             self.driver.execute_script(
                 f"window.scrollTo(0, window.scrollY + {4000});"
             )
@@ -182,3 +190,4 @@ class SuperbetThreeWayBets(SuperbetScraper):
             if height == new_height:
                 break
             height = new_height
+        self.logging.info(f"Data collected: {self.site_path}")
