@@ -90,7 +90,7 @@ class BetclicTwoWayBets(BetclicScraper):
         super().__init__(site_path)
         self.events_data = TwoWayBetEventsTable("BETCLIC")
 
-    def get_events_values(self):
+    def get_events_values(self, result_queue):
         self.get_events_from_site()
         # parser = FortunaParsers()
         for event, date in self.events_objects.items():
@@ -124,6 +124,8 @@ class BetclicTwoWayBets(BetclicScraper):
             except Exception as e:
                 self.logging.error(f"Unknown bug, more here: {e}")
         self.logging.info(f"Data collected: {self.site_path}")
+        self.driver.quit()
+        result_queue.put(self.events_data.data)
 
 
 class BetclicThreeWayBets(BetclicScraper):
@@ -131,7 +133,7 @@ class BetclicThreeWayBets(BetclicScraper):
         super().__init__(site_path)
         self.events_data = ThreeWayBetEventsTable("BETCLIC")
 
-    def get_events_values(self):
+    def get_events_values(self, result_queue):
         self.get_events_from_site()
         # parser = FortunaParsers()
         for event, date in self.events_objects.items():
@@ -170,3 +172,5 @@ class BetclicThreeWayBets(BetclicScraper):
             except Exception as e:
                 self.logging.error(f"Unknown bug, more here: {e}")
         self.logging.info(f"Data collected: {self.site_path}")
+        self.driver.quit()
+        result_queue.put(self.events_data.data)

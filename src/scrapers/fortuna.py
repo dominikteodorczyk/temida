@@ -13,6 +13,7 @@ from utils.events import (
     ThreeWayBetEventsTable,
 )
 from utils.technical import setup_logger
+from queue import Queue
 
 
 class FortunaScraper(Scraper):
@@ -84,7 +85,7 @@ class FortunaTwoWayBets(FortunaScraper):
         super().__init__(site_path)
         self.events_data = TwoWayBetEventsTable("FORTUNA")
 
-    def get_events_values(self):
+    def get_events_values(self, result_queue):
         self.get_events_from_site()
         for event in self.events_objects:
             try:
@@ -118,6 +119,8 @@ class FortunaTwoWayBets(FortunaScraper):
             except Exception as e:
                 self.logging.error(f"Unknown bug, more here: {e}")
         self.logging.info(f"Data collected: {self.site_path}")
+        self.driver.quit()
+        result_queue.put(self.events_data.data)
 
 
 class FortunaThreeWayBets(FortunaScraper):
@@ -125,7 +128,7 @@ class FortunaThreeWayBets(FortunaScraper):
         super().__init__(site_path)
         self.events_data = ThreeWayBetEventsTable("FORTUNA")
 
-    def get_events_values(self):
+    def get_events_values(self, result_queue):
         self.get_events_from_site()
         for event in self.events_objects:
             try:
@@ -162,3 +165,5 @@ class FortunaThreeWayBets(FortunaScraper):
             except Exception as e:
                 self.logging.error(f"Unknown bug, more here: {e}")
         self.logging.info(f"Data collected: {self.site_path}")
+        self.driver.quit()
+        result_queue.put(self.events_data.data)

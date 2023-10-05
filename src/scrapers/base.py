@@ -16,3 +16,7 @@ class Scraper:
             print(e)
 
         self.wait = WebDriverWait(self.driver, 20)
+
+    @classmethod
+    def init_with(cls, site_path):
+        return cls(site_path)
