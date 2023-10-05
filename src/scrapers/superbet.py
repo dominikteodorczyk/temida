@@ -16,6 +16,7 @@ from utils.events import (
     ThreeWayBetEventsTable,
 )
 from utils.technical import setup_logger
+import traceback
 
 
 class SuperbetScraper(Scraper):
@@ -72,7 +73,7 @@ class SuperbetTwoWayBets(SuperbetScraper):
         super().__init__(site_path)
         self.events_data = TwoWayBetEventsTable("SUPERBET")
 
-    def get_events_values(self):
+    def get_events_values(self, result_queue):
         self.get_events_from_site()
         height = self.driver.execute_script("return window.scrollY;")
         self.driver.execute_script("window.scrollTo(0, 0);")
@@ -116,7 +117,9 @@ class SuperbetTwoWayBets(SuperbetScraper):
                 except NoSuchElementException as e:
                     pass
                 except Exception as e:
-                    self.logging.error(f"Unknown bug, more here: {e}")
+                    exception_message = str(e)
+                    traceback_str = traceback.format_exc()
+                    self.logging.error(f"Unknown bug, more here: {traceback_str} {exception_message}")
             self.driver.execute_script(
                 f"window.scrollTo(0, window.scrollY + {4000});"
             )
@@ -126,14 +129,15 @@ class SuperbetTwoWayBets(SuperbetScraper):
                 break
             height = new_height
         self.logging.info(f"Data collected: {self.site_path}")
-
+        self.driver.quit()
+        result_queue.put(self.events_data.data)
 
 class SuperbetThreeWayBets(SuperbetScraper):
     def __init__(self, site_path: str) -> None:
         super().__init__(site_path)
         self.events_data = ThreeWayBetEventsTable("SUPERBET")
 
-    def get_events_values(self):
+    def get_events_values(self, result_queue):
         self.get_events_from_site()
         height = self.driver.execute_script("return window.scrollY;")
         self.driver.execute_script("window.scrollTo(0, 0);")
@@ -181,7 +185,9 @@ class SuperbetThreeWayBets(SuperbetScraper):
                 except NoSuchElementException as e:
                     pass
                 except Exception as e:
-                    self.logging.error(f"Unknown bug, more here: {e}")
+                    exception_message = str(e)
+                    traceback_str = traceback.format_exc()
+                    self.logging.error(f"Unknown bug, more here: {traceback_str} {exception_message}")
             self.driver.execute_script(
                 f"window.scrollTo(0, window.scrollY + {4000});"
             )
@@ -191,3 +197,5 @@ class SuperbetThreeWayBets(SuperbetScraper):
                 break
             height = new_height
         self.logging.info(f"Data collected: {self.site_path}")
+        self.driver.quit()
+        result_queue.put(self.events_data.data)
