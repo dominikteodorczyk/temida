@@ -331,3 +331,122 @@ class Test_BetclicParser:
         value = parser.parse_away_name(example_data["away_player"])
         assert type(value) == str
         assert value == expected_return["away_player"]
+
+
+class Test_BetclicParser:
+    @pytest.fixture
+    def example_data(self):
+        return {
+            "home_player": "Galatasaray ",
+            "away_player": " Bayern M.",
+            "home_team_win": "5,8",
+            "draw": "4,8",
+            "away_team_win": "1,47",
+            "event_date": "12.12",
+        }
+
+    @pytest.fixture
+    def expected_return(self):
+        return {
+            "event_name": "Galatasaray - Bayern M.",
+            "home_player": "GALATASARAY",
+            "away_player": "BAYERN M.",
+            "home_team_win": 5.8,
+            "draw": 4.8,
+            "away_team_win": 1.47,
+            "event_date": datetime.strptime(
+                f"12.12.{datetime.now().year}", "%d.%m.%Y"
+            ).date(),
+        }
+
+    @pytest.fixture
+    def secound_example_date(self):
+        return "01.01"
+
+    @pytest.fixture
+    def expected_return_date(self):
+        return datetime.strptime(
+            f"01.01.{datetime.now().year + 1}", "%d.%m.%Y"
+        ).date()
+
+    def test_parse_date_return_datetime(self, example_data, expected_return):
+        parser = SuperbetParser()
+        value = parser.parse_date(example_data["event_date"])
+        assert type(value) == type(expected_return["event_date"])
+
+    def test_parse_date_return_proper_datetime(
+        self, example_data, expected_return
+    ):
+        parser = SuperbetParser()
+        value = parser.parse_date(example_data["event_date"])
+        assert value == expected_return["event_date"]
+
+    def test_parse_date_return_proper_date_for_event_from_naxt_y(
+        self, secound_example_date, expected_return_date
+    ):
+        parser = SuperbetParser()
+        value = parser.parse_date(secound_example_date)
+        assert value == expected_return_date
+
+    @pytest.mark.parametrize(
+        "date_str",
+        [("PON."), ("WT."), ("ŚR."), ("CZW."), ("PT."), ("SOB."), ("NIEDZ.")],
+    )
+    def test_parse_date_return_proper_date_from_weekdays_str(self, date_str):
+        def proper_date_generator(param_value):
+            current_date = datetime.now().date()
+            if param_value in [
+                "PON.",
+                "WT.",
+                "ŚR.",
+                "CZW.",
+                "PT.",
+                "SOB.",
+                "NIEDZ.",
+            ]:
+                weekday_mapping = {
+                    "PON.": 0,
+                    "WT.": 1,
+                    "ŚR.": 2,
+                    "CZW.": 3,
+                    "PT.": 4,
+                    "SOB.": 5,
+                    "NIEDZ.": 6,
+                }
+                days_until_next_weekday = (
+                    weekday_mapping[param_value] - current_date.weekday() + 7
+                ) % 7
+                next_weekday = current_date + timedelta(
+                    days=days_until_next_weekday
+                )
+                return next_weekday.strftime("%Y-%m-%d")
+
+        parser = SuperbetParser()
+        value = parser.parse_date(date_str)
+        assert value == proper_date_generator(date_str)
+
+    def test_parse_event_name_return_proper_str(
+        self, example_data, expected_return
+    ):
+        parser = SuperbetParser()
+        value = parser.parse_event_name(
+            example_data["home_player"], example_data["away_player"]
+        )
+        assert type(value) == str
+        assert value == expected_return["event_name"]
+
+    def test_parse_home_name_return_proper_str(
+        self, example_data, expected_return
+    ):
+        parser = SuperbetParser()
+        value = parser.parse_home_name(example_data["home_player"])
+        assert type(value) == str
+        assert value == expected_return["home_player"]
+
+    def test_parse_away_name_return_proper_str(
+        self, example_data, expected_return
+    ):
+        parser = SuperbetParser()
+        value = parser.parse_away_name(example_data["away_player"])
+        assert type(value) == str
+        assert value == expected_return["away_player"]
