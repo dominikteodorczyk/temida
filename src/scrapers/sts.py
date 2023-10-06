@@ -9,6 +9,7 @@ from utils.events import (
     TwoWayBetEventsTable,
     ThreeWayBetEventsTable,
 )
+from utils.technical import setup_logger
 
 
 class STSScraper(Scraper):
@@ -16,6 +17,8 @@ class STSScraper(Scraper):
         super().__init__(site_path)
         self.competition_boxes: list = []
         self.events_objects: list = []
+        self.logging = setup_logger(name="STS", print_logs=True)
+        self.logging.info(f"Starting to collect data: {self.site_path}")
 
     def close_cookie_msg(self):
         try:
@@ -24,8 +27,10 @@ class STSScraper(Scraper):
                 '//*[@id="CybotCookiebotDialogBodyLevelButtonLevelOptinAllowAll"]',
             )
             close_button.click()
+        except NoSuchElementException:
+            self.logging.warning("Can't close cookies msg")
         except Exception as e:
-            print("Can't close cookies msg:", e)
+            self.logging.error(f"Unknown bug, more here: {e}")
 
     def get_whole_site(self):
         while True:
@@ -36,8 +41,10 @@ class STSScraper(Scraper):
                 )
                 close_button.click()
                 time.sleep(0.5)
-            except:
+            except NoSuchElementException:
                 break
+            except Exception as e:
+                self.logging.error(f"Unknown bug, more here: {e}")
 
     def get_segments(self):
         try:
@@ -46,7 +53,7 @@ class STSScraper(Scraper):
                 "/html/body/app-mweb/div/div/div/div[1]/div/div[2]/app-prematch/app-sport/div[2]/app-popular/div/app-show-more-container/bb-leagues-wrapper/bb-league[*]",
             )
         except NoSuchElementException as e:
-            print(e)
+            self.logging.warning(f"No segment elements")
 
     def get_all_events_objects(self):
         for box in self.competition_boxes:
@@ -62,7 +69,9 @@ class STSScraper(Scraper):
             self.get_segments()
             self.get_all_events_objects()
         except Exception as e:
-            print(e)
+            self.logging.error(f"Unknown bug, more here: {e}")
+        self.logging.info(f"Events collected: {self.site_path}")
+
 
 
 class STSTwoWayBets(STSScraper):
@@ -70,7 +79,7 @@ class STSTwoWayBets(STSScraper):
         super().__init__(site_path)
         self.events_data = TwoWayBetEventsTable("STS")
 
-    def get_events_values(self):
+    def get_events_values(self, result_queue):
         self.get_events_from_site()
         for event in self.events_objects:
             try:
@@ -102,7 +111,10 @@ class STSTwoWayBets(STSScraper):
             except NoSuchElementException as e:
                 pass
             except Exception as e:
-                print(e)
+                self.logging.error(f"Unknown bug, more here: {e}")
+        self.logging.info(f"Data collected: {self.site_path}")
+        self.driver.quit()
+        result_queue.put(self.events_data.data)
 
 
 class STSThreeWayBets(STSScraper):
@@ -110,7 +122,7 @@ class STSThreeWayBets(STSScraper):
         super().__init__(site_path)
         self.events_data = ThreeWayBetEventsTable("STS")
 
-    def get_events_values(self):
+    def get_events_values(self, result_queue):
         self.get_events_from_site()
         for event in self.events_objects:
             try:
@@ -146,4 +158,7 @@ class STSThreeWayBets(STSScraper):
             except NoSuchElementException as e:
                 pass
             except Exception as e:
-                print(e)
+                self.logging.error(f"Unknown bug, more here: {e}")
+        self.logging.info(f"Data collected: {self.site_path}")
+        self.driver.quit()
+        result_queue.put(self.events_data.data)
