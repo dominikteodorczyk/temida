@@ -7,7 +7,7 @@ from utils.events import MainEventsBoard
 class Test_MainEventsBoard:
     @pytest.fixture
     def data_dir(self):
-        return os.path.join(os.getcwd(), "test", "data")
+        return os.path.join(os.getcwd(), "tests", "data")
 
     @pytest.fixture
     def fortuna_board(self, data_dir):
@@ -33,9 +33,9 @@ class Test_MainEventsBoard:
         atributes = vars(MainEventsBoard())
         assert type(atributes["events_table"]) == pd.DataFrame
 
-    # def test_MainEventsBoard_collect_data_in_list(
-    #         self,
-    #         fortuna_board,
-    #         sts_board,
-    #         betclic_board,
-    #         superbet_board):
+    def test_MainEventsBoard_put_data_append_data_to_list(self, fortuna_board, sts_board):
+        obj = MainEventsBoard()
+        obj.put_data(fortuna_board)
+        assert len(obj.events_list) == 1
+        obj.put_data(sts_board)
+        assert len(obj.events_list) == 2

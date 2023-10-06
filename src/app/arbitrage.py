@@ -1,5 +1,5 @@
-
 class EventArbitrage:
-
-    def __init__(self,) -> None:
+    def __init__(
+        self,
+    ) -> None:
         pass
