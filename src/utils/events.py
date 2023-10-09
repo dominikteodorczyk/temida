@@ -2,9 +2,9 @@
 A module containing classes of objects representing events.
 """
 
-from pandas import DataFrame
-from numpy import nan, mean
+from pandas import DataFrame, Series
 from copy import deepcopy
+from numpy import nan
 
 
 class BetEvent:
@@ -257,3 +257,26 @@ class MainEventsBoard:
         mask = self.events_table.count(axis=1) == 1
         self.events_table = self.events_table[~mask]
         return self.events_table
+
+
+class Event:
+
+    def __init__(self,events_data) -> None:
+        self.events_data:dict = events_data
+
+    @classmethod
+    def create(cls, event_row: Series,events_dict):
+        events_data = {}
+        for key, value in event_row.to_dict().items():
+            if type(value) == str:
+                data_frame = events_dict[key]
+                events_data[key] = data_frame.data.loc[data_frame.data['event_name']==value]
+        return cls(events_data)
+    
+
+
+
+        
+    
+
+    
