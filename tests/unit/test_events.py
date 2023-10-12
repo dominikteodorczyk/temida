@@ -25,9 +25,9 @@ class Test_MainEventsBoard:
     def superbet_board(self, data_dir):
         return pd.read_csv(os.path.join(data_dir, "superbet_data.csv"))
 
-    def test_MainEventsBoard_have_events_list_atribut_as_list(self):
+    def test_MainEventsBoard_have_events_dict_atribut_as_list(self):
         atributes = vars(MainEventsBoard())
-        assert type(atributes["events_list"]) == list
+        assert type(atributes["events_dict"]) == dict
 
     def test_MainEventsBoard_have_events_table_atribut_as_DataFrame(self):
         atributes = vars(MainEventsBoard())
@@ -36,6 +36,6 @@ class Test_MainEventsBoard:
     def test_MainEventsBoard_put_data_append_data_to_list(self, fortuna_board, sts_board):
         obj = MainEventsBoard()
         obj.put_data(fortuna_board)
-        assert len(obj.events_list) == 1
+        assert len(obj.events_dict) == 1
         obj.put_data(sts_board)
-        assert len(obj.events_list) == 2
+        assert len(obj.events_dict) == 2

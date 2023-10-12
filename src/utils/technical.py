@@ -52,3 +52,9 @@ def setup_logger(
         logger.addHandler(logging.StreamHandler())
 
     return logger
+
+class Constant:
+
+    TAX_VALUE = 0.12
+    TEST_STAKE = 100.00
+    TOTAL_MIN_RETURN = 0.00
