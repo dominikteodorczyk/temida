@@ -67,9 +67,11 @@ class ArbitrageCalculator:
         Calculates the probability of an event based on the odds.
 
         Parameters:
+        --------
         - odds (float): The odds of the bet.
 
         Returns:
+        --------
         float: The calculated probability.
         """
         return (1 + Constant.TAX_VALUE) / odds
@@ -80,9 +82,11 @@ class ArbitrageCalculator:
         probability of the event.
 
         Parameters:
+        --------
         - event_probability (float): The probability of the event.
 
         Returns:
+        --------
         float: The calculated money ratio.
         """
         return (100 / event_probability) / 100
@@ -93,10 +97,12 @@ class ArbitrageCalculator:
         placed and the odds.
 
         Parameters:
+        --------
         - money (float): The amount of money placed.
         - odds (float): The odds of the bet.
 
         Returns:
+        --------
         float: The calculated potential return.
         """
         return money * odds
@@ -111,6 +117,7 @@ class TwoWayArbitrageCalculator(ArbitrageCalculator):
         Creates a consolidated DataFrame from event-specific data.
 
         Returns:
+        --------
         pandas.DataFrame: The consolidated DataFrame.
         """
         dataframes_dict = {}
@@ -129,6 +136,7 @@ class TwoWayArbitrageCalculator(ArbitrageCalculator):
         Creates combinations of bets from the DataFrame.
 
         Returns:
+        --------
         list: A list of dictionaries representing all bet combinations.
         """
         bets_dataframe = self.create_data_source()
@@ -147,6 +155,147 @@ class TwoWayArbitrageCalculator(ArbitrageCalculator):
 
         return list_of_dicts
 
+    def get_values_from_dict(self, dictionary):
+        """
+        Extract home win and away win values from a dictionary.
+
+        Parameters:
+        --------
+        - dictionary (dict): A dictionary containing keys related
+            to match outcomes.
+
+        Returns:
+        --------
+        tuple: A tuple containing home win and away win values.
+        """
+        home_win_key = [
+            key for key in dictionary.keys() if key.endswith("home_team_win")
+        ][0]
+        away_win_key = [
+            key for key in dictionary.keys() if key.endswith("away_team_win")
+        ][0]
+
+        home_win = dictionary[home_win_key]
+        away_win = dictionary[away_win_key]
+
+        return home_win, away_win
+
+    def calculate_implied_probability(
+        self, home_odds: float, away_odds: float
+    ) -> float:
+        """
+        Calculate the total implied probability based on home and win
+        probabilities.
+
+        Parameters:
+        --------
+        - home_odds (float): The odds of home team winning.
+        - away_odds (float): The odds of the away team winning.
+
+        Returns:
+        --------
+        float: The total implied probability.
+        """
+        return (
+            self.get_probability(home_odds)
+            + self.get_probability(away_odds)
+        )
+
+    def calculate_odds_value(
+        self, money_ratio: float, home_win: float, away_win: float
+    ):
+        """
+        Calculates the values of bets for test outcomes.
+
+        Parameters:
+        --------
+        - money_ratio (float): The ratio indicating the amount of
+            money placed.
+        - home_win (float): odds for a bet on the home team winning.
+        - away_win (float): odds for a bet on the away team winning.
+
+        Returns:
+        --------
+        tuple: A tuple containing the calculated values for bets on
+        home team win and away team win.
+        """
+        return (
+            Constant.TEST_STAKE * self.get_probability(home_win) * money_ratio,
+            Constant.TEST_STAKE * self.get_probability(away_win) * money_ratio,
+        )
+
+    def calculate_final_return(
+        self, win_return, win_odds, *deductions
+    ) -> float:
+        """
+        Calculate the final return after deducting various costs.
+
+        Parameters:
+        --------
+        - win_return (float): The return from a successful event.
+        - *deductions (float): Debt from unsuccessful events.
+
+        Returns:
+        --------
+        float: The final return after deducting all costs.
+        """
+        return (win_return * (win_odds - (1 + Constant.TAX_VALUE))) - sum(
+            deductions
+        )
+
+    def calculate_arbitrage(self):
+        """
+        Calculate arbitrage opportunities based on the given event data.
+
+        This method calculates the implied probability of outcomes
+        (home win and away win), checks for arbitrage opportunities,
+        and prints the event data if profitable opportunities are found.
+
+        Returns:
+        --------
+        list or None: Returns the list of bets data if arbitrage opportunities
+        are found, otherwise returns None.
+
+        Notes:
+        ------
+        The arbitrage opportunities are checked based on the calculated
+        implied probabilities, money ratios, and final returns for each
+        possible outcome.
+        """
+        combinations = self.create_combinations()
+        possible_positiv_return_combination = []
+        for combination in combinations:
+            home_win, away_win = self.get_values_from_dict(combination)
+            event_probability = self.calculate_implied_probability(
+                home_win, away_win
+            )
+
+            if event_probability >= 1.00:
+                pass
+            else:
+                money_ratio = self.calculate_money_ratio(event_probability)
+                home_money, away_money = self.calculate_odds_value(
+                    money_ratio, home_win, away_win
+                )
+                if all(
+                    x > Constant.TOTAL_MIN_RETURN
+                    for x in [
+                        self.calculate_final_return(
+                            home_money, home_win,  away_money
+                        ),
+                        self.calculate_final_return(
+                            away_money, away_win, home_money
+                        ),
+                    ]
+                ):
+                    possible_positiv_return_combination.append(combination)
+                else:
+                    pass
+        if possible_positiv_return_combination:
+            return possible_positiv_return_combination
+        else:
+            return None
+
 
 class ThreeWayArbitrageCalculator(ArbitrageCalculator):
     def __init__(self, event_data) -> None:
@@ -157,6 +306,7 @@ class ThreeWayArbitrageCalculator(ArbitrageCalculator):
         Creates a consolidated DataFrame from event-specific data.
 
         Returns:
+        --------
         pandas.DataFrame: The consolidated DataFrame.
         """
         dataframes_dict = {}
@@ -175,6 +325,7 @@ class ThreeWayArbitrageCalculator(ArbitrageCalculator):
         Creates combinations of bets from the DataFrame.
 
         Returns:
+        --------
         list: A list of dictionaries representing all bet combinations.
         """
         bets_dataframe = self.create_data_source()
@@ -201,7 +352,7 @@ class ThreeWayArbitrageCalculator(ArbitrageCalculator):
         Extract home win, draw, and away win values from a dictionary.
 
         Parameters:
-        -----------
+        --------
         - dictionary (dict): A dictionary containing keys related
             to match outcomes.
 
@@ -233,11 +384,13 @@ class ThreeWayArbitrageCalculator(ArbitrageCalculator):
         and win probabilities.
 
         Parameters:
+        --------
         - home_odds (float): The odds of home team winning.
         - draw_odds (float): The odds of the match ending in a draw.
         - away_odds (float): The odds of the away team winning.
 
         Returns:
+        --------
         float: The total implied probability.
         """
         return (
@@ -253,6 +406,7 @@ class ThreeWayArbitrageCalculator(ArbitrageCalculator):
         Calculates the values of bets for test outcomes.
 
         Parameters:
+        --------
         - money_ratio (float): The ratio indicating the amount of
             money placed.
         - home_win (float): odds for a bet on the home team winning.
@@ -260,27 +414,34 @@ class ThreeWayArbitrageCalculator(ArbitrageCalculator):
         - away_win (float): odds for a bet on the away team winning.
 
         Returns:
+        --------
         tuple: A tuple containing the calculated values for bets on
         home team win, draw, and away team win.
         """
         return (
             Constant.TEST_STAKE * self.get_probability(home_win) * money_ratio,
             Constant.TEST_STAKE * self.get_probability(draw) * money_ratio,
-            Constant.TEST_STAKE * self.get_probability(away_win) * money_ratio
+            Constant.TEST_STAKE * self.get_probability(away_win) * money_ratio,
         )
 
-    def calculate_final_return(self, win_return, win_odds, *deductions) -> float:
+    def calculate_final_return(
+        self, win_return, win_odds, *deductions
+    ) -> float:
         """
         Calculate the final return after deducting various costs.
 
         Parameters:
+        --------
         - win_return (float): The return from a successful event.
         - *deductions (float): Debt from unsuccessful events.
 
         Returns:
+        --------
         float: The final return after deducting all costs.
         """
-        return (win_return * (win_odds - (1 + Constant.TAX_VALUE))) - sum(deductions)
+        return (win_return * (win_odds - (1 + Constant.TAX_VALUE))) - sum(
+            deductions
+        )
 
     def calculate_arbitrage(self):
         """
