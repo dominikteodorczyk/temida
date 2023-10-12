@@ -1,26 +1,72 @@
-from utils.events import *
-from pandas import concat
-from typing import Union
+"""
+Module arbitrage:
+
+This module defines classes and methods related to arbitrage calculations
+for sports betting events.
+
+Classes:
+--------
+1. Arbitrage: A base class representing an arbitrage opportunity.
+2. EventArbitrage: Represents an arbitrage opportunity for a specific
+    sports betting event.
+3. ArbitrageCalculator:A base class for calculating arbitrage opportunities
+    based on provided event data.
+4. TwoWayArbitrageCalculator(ArbitrageCalculator): Extends ArbitrageCalculator
+    to specifically handle two-way (binary) outcomes.
+5. ThreeWayArbitrageCalculator(ArbitrageCalculator): Extends
+    ArbitrageCalculator to specifically handle three-way outcomes.
+
+Usage:
+------
+Instantiate objects from the defined classes and use their methods for
+arbitrage calculations. Make sure to provide the required data, such as
+event outcomes and odds, when using the calculators.
+"""
+
+from pandas import DataFrame, concat
 from utils.technical import Constant
+from utils.events import MainEventsBoard, Event
 
 
 class Arbitrage:
-    # TODO: clasa wykonująca arbitraż na całej tablicy
+    """
+    Represents an arbitrage opportunity for sports betting events.
+
+    Attributes:
+    -----------
+    - data_object (MainEventsBoard): An object containing data related
+        to sports betting events.
+    - self_arbitrage_pair (DataFrame): An empty DataFrame to store
+        arbitrage pairs.
+    """
+
     def __init__(self, data_object: MainEventsBoard) -> None:
         self.data_object = data_object
-        self_arbitrage_pair = DataFrame()
+        self.arbitrage_pair = DataFrame()
 
     def calculate_arbitage(self):
         for index, row in self.data_object.events_table.iterrows():
             event = Event.create(row, self.data_object.events_dict)
-            print("-------------")
-            print(event.events_data)
             arbitrage = EventArbitrage.create(event)
             # arbitrage.parepare_data()
 
 
 class EventArbitrage:
-    def __init__(self, event_object, event_name, event_date, calc) -> None:
+    """
+    Represents an event for arbitrage calculations in sports betting.
+
+    Attributes:
+    -----------
+    - event_data (Event): An object containing data related to the sports
+        betting event.
+    - event_name (str): The name or identifier of the sports betting event.
+    - event_date (str): The date of the sports betting event.
+    - calculator: The calculator object used for arbitrage calculations.
+    """
+
+    def __init__(
+        self, event_object, event_name: str, event_date: str, calc
+    ) -> None:
         self.event_data: Event = event_object
         self.event_name = event_name
         self.event_date = event_date
@@ -31,6 +77,21 @@ class EventArbitrage:
 
     @classmethod
     def create(cls, event_object: Event):
+        """
+        Creates an instance of the EventArbitrage class based on the
+        characteristics of the provided Event object.
+
+        Parameters:
+        -----------
+        event_object (Event): An instance of the Event class
+        containing sports betting event data.
+
+        Returns:
+        --------
+        EventArbitrage: An instance of the EventArbitrage class created
+        based on the type of arbitrage opportunities available in the provided
+        Event object or None.
+        """
         first_key = event_object.events_data[
             list(event_object.events_data.keys())[0]
         ]
@@ -43,7 +104,7 @@ class EventArbitrage:
                 event_date,
                 ThreeWayArbitrageCalculator(event_object),
             )
-        elif first_key == 7:
+        if first_key.shape[1] == 7:
             return cls(
                 event_object,
                 event_name,
@@ -52,13 +113,23 @@ class EventArbitrage:
             )
 
     def parepare_data(self):
-        # bets_dataframe = self.calculator.create_data_source(self.event_data)
-        # bets_combination = self.calculator.create_combinations(bets_dataframe)
+        # bets_dataframe = self.calculator.create_data_source(
+        # self.event_data)
+        # bets_combination = self.calculator.create_combinations(
+        # bets_dataframe)
         # print(bets_combination)
         pass
 
 
 class ArbitrageCalculator:
+    """
+    Calculates arbitrage opportunities based on sports betting event data.
+
+    Attributes:
+    -----------
+    - event_data: Data containing information about sports betting events.
+    """
+
     def __init__(self, event_data) -> None:
         self.event_data = event_data
 
@@ -109,6 +180,11 @@ class ArbitrageCalculator:
 
 
 class TwoWayArbitrageCalculator(ArbitrageCalculator):
+    """
+    Calculates two-way arbitrage opportunities based on sports
+    betting event data. Inherits from ArbitrageCalculator.
+    """
+
     def __init__(self, event_data) -> None:
         super().__init__(event_data)
 
@@ -196,9 +272,8 @@ class TwoWayArbitrageCalculator(ArbitrageCalculator):
         --------
         float: The total implied probability.
         """
-        return (
-            self.get_probability(home_odds)
-            + self.get_probability(away_odds)
+        return self.get_probability(home_odds) + self.get_probability(
+            away_odds
         )
 
     def calculate_odds_value(
@@ -281,7 +356,7 @@ class TwoWayArbitrageCalculator(ArbitrageCalculator):
                     x > Constant.TOTAL_MIN_RETURN
                     for x in [
                         self.calculate_final_return(
-                            home_money, home_win,  away_money
+                            home_money, home_win, away_money
                         ),
                         self.calculate_final_return(
                             away_money, away_win, home_money
@@ -293,11 +368,14 @@ class TwoWayArbitrageCalculator(ArbitrageCalculator):
                     pass
         if possible_positiv_return_combination:
             return possible_positiv_return_combination
-        else:
-            return None
 
 
 class ThreeWayArbitrageCalculator(ArbitrageCalculator):
+    """
+    Calculates three-way arbitrage opportunities based on sports
+    betting event data. Inherits from ArbitrageCalculator.
+    """
+
     def __init__(self, event_data) -> None:
         super().__init__(event_data)
 
@@ -464,7 +542,6 @@ class ThreeWayArbitrageCalculator(ArbitrageCalculator):
         """
         combinations = self.create_combinations()
         possible_positiv_return_combination = []
-        option = None
         for combination in combinations:
             home_win, draw, away_win = self.get_values_from_dict(combination)
             event_probability = self.calculate_implied_probability(
@@ -497,5 +574,3 @@ class ThreeWayArbitrageCalculator(ArbitrageCalculator):
                     pass
         if possible_positiv_return_combination:
             return possible_positiv_return_combination
-        else:
-            return None
