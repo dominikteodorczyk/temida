@@ -12,6 +12,8 @@ from utils.events import (
     TwoWayBetEventsTable,
     ThreeWayBetEventsTable,
 )
+from utils.technical import setup_logger
+from queue import Queue
 
 
 class FortunaScraper(Scraper):
@@ -19,6 +21,8 @@ class FortunaScraper(Scraper):
         super().__init__(site_path)
         self.competition_boxes: list = []
         self.events_objects: list = []
+        self.logging = setup_logger(name="FORTUNA", print_logs=True)
+        self.logging.info(f"Starting to collect data: {self.site_path}")
 
     def close_cookie_msg(self):
         try:
@@ -26,8 +30,10 @@ class FortunaScraper(Scraper):
                 By.XPATH, '//*[@id="cookie-consent-button-accept"]'
             )
             close_button.click()
+        except NoSuchElementException:
+            self.logging.warning("Can't close cookies msg")
         except Exception as e:
-            print("Can't close cookies msg:", e)
+            self.logging.error(f"Unknown bug, more here: {e}")
 
     def get_whole_site(self):
         last_height = self.driver.execute_script(
@@ -52,7 +58,7 @@ class FortunaScraper(Scraper):
                 By.XPATH, '//*[@id="sport-events-list-content"]/section[*]'
             )
         except NoSuchElementException as e:
-            print(e)
+            self.logging.warning(f"No segment elements")
 
     def get_all_events_objects(self):
         for box in self.competition_boxes:
@@ -70,7 +76,8 @@ class FortunaScraper(Scraper):
             self.get_segments()
             self.get_all_events_objects()
         except Exception as e:
-            print(e)
+            self.logging.error(f"Unknown bug, more here: {e}")
+        self.logging.info(f"Events collected: {self.site_path}")
 
 
 class FortunaTwoWayBets(FortunaScraper):
@@ -78,7 +85,7 @@ class FortunaTwoWayBets(FortunaScraper):
         super().__init__(site_path)
         self.events_data = TwoWayBetEventsTable("FORTUNA")
 
-    def get_events_values(self):
+    def get_events_values(self, result_queue):
         self.get_events_from_site()
         for event in self.events_objects:
             try:
@@ -110,7 +117,10 @@ class FortunaTwoWayBets(FortunaScraper):
             except NoSuchElementException as e:
                 pass
             except Exception as e:
-                print(e)
+                self.logging.error(f"Unknown bug, more here: {e}")
+        self.logging.info(f"Data collected: {self.site_path}")
+        self.driver.quit()
+        result_queue.put(self.events_data.data)
 
 
 class FortunaThreeWayBets(FortunaScraper):
@@ -118,7 +128,7 @@ class FortunaThreeWayBets(FortunaScraper):
         super().__init__(site_path)
         self.events_data = ThreeWayBetEventsTable("FORTUNA")
 
-    def get_events_values(self):
+    def get_events_values(self, result_queue):
         self.get_events_from_site()
         for event in self.events_objects:
             try:
@@ -153,4 +163,7 @@ class FortunaThreeWayBets(FortunaScraper):
             except NoSuchElementException as e:
                 pass
             except Exception as e:
-                print(e)
+                self.logging.error(f"Unknown bug, more here: {e}")
+        self.logging.info(f"Data collected: {self.site_path}")
+        self.driver.quit()
+        result_queue.put(self.events_data.data)
