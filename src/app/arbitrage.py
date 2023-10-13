@@ -42,13 +42,17 @@ class Arbitrage:
 
     def __init__(self, data_object: MainEventsBoard) -> None:
         self.data_object = data_object
-        self.arbitrage_pair = DataFrame()
+        self.arbitration_opportunities = []
 
     def calculate_arbitage(self):
         for index, row in self.data_object.events_table.iterrows():
             event = Event.create(row, self.data_object.events_dict)
             arbitrage = EventArbitrage.create(event)
-            # arbitrage.parepare_data()
+            self.arbitration_opportunities.append(arbitrage.calculate())
+        for i in self.arbitration_opportunities:
+            if i:
+                print('---------------------------')
+                print(i)
 
 
 class EventArbitrage:
@@ -71,9 +75,6 @@ class EventArbitrage:
         self.event_name = event_name
         self.event_date = event_date
         self.calculator = calc
-
-    def __str__(self) -> str:
-        return self.event_name
 
     @classmethod
     def create(cls, event_object: Event):
@@ -112,13 +113,12 @@ class EventArbitrage:
                 TwoWayArbitrageCalculator(event_object),
             )
 
-    def parepare_data(self):
-        # bets_dataframe = self.calculator.create_data_source(
-        # self.event_data)
-        # bets_combination = self.calculator.create_combinations(
-        # bets_dataframe)
-        # print(bets_combination)
-        pass
+    def calculate(self):
+        arbitration_opportunities = self.calculator.calculate_arbitrage()
+        if arbitration_opportunities:
+            return {
+                (self.event_name, self.event_date) : arbitration_opportunities
+            }
 
 
 class ArbitrageCalculator:
