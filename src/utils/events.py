@@ -5,6 +5,9 @@ A module containing classes of objects representing events.
 from pandas import DataFrame, Series
 from copy import deepcopy
 from numpy import nan
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.cluster import AgglomerativeClustering
+from sklearn.metrics.pairwise import cosine_similarity
 
 
 class BetEvent:
@@ -222,14 +225,34 @@ class MainEventsBoard:
         similarity = intersection / union
         return similarity
 
+    def cluster_strings(self,lists, threshold):
+        # Tworzenie macierzy TF-IDF
+        vectorizer = TfidfVectorizer()
+        X = vectorizer.fit_transform([' '.join(lst) for lst in lists])
+
+        # Klastrowanie hierarchiczne
+        clustering = AgglomerativeClustering(n_clusters=None, distance_threshold=threshold, linkage='average', metric='cosine')
+        labels = clustering.fit_predict(X.toarray())
+
+        # Mapowanie klastrowania na listy
+        clusters = {}
+        for idx, label in enumerate(labels):
+            if label not in clusters:
+                clusters[label] = []
+            clusters[label].append(idx)
+
+        return clusters
+
     def create_events_table(self):
         self.events_table = DataFrame(columns=self.get_cols_names())
         dates_list = self.get_unique_dates()
+
         for date in dates_list:
             work_dict = self.create_provisor_dict(date)
             main_list = work_dict[self.highest_number_of_records(work_dict)]
             rest_dict = deepcopy(work_dict)
             del rest_dict[self.highest_number_of_records(work_dict)]
+            i = 1
             for main_event in main_list:
                 temporal_dict = {}
                 for key, value in rest_dict.items():
@@ -237,15 +260,16 @@ class MainEventsBoard:
                     best = None
                     for secound_event in value:
                         try:
-                            similarity = self.jaccard_similarity(
-                                main_event, secound_event
-                            )
-                            if similarity > 0.75:
-                                if similarity > ratio:
+                            list = [[main_event], [secound_event]]
+                            similarity = self.cluster_strings(list,threshold=0.01)
+                            # similarity = fuzz.ratio(main_event, secound_event)
+                            if len(similarity) == 1 :
+                                # if similarity > ratio:
                                     best = secound_event
                                     ratio = similarity
-                        except:
+                        except Exception as e:
                             best = None
+                            print(e)
                             pass
                     temporal_dict[key] = best
                 temporal_dict[
@@ -254,8 +278,11 @@ class MainEventsBoard:
                 self.events_table = self.events_table._append(
                     temporal_dict, ignore_index=True
                 )
+                print(f'{i}/{len(main_list)}')
+                i +=1
         mask = self.events_table.count(axis=1) == 1
         self.events_table = self.events_table[~mask]
+        self.events_table.to_csv('merged2.csv')
         return self.events_table
 
 
@@ -272,11 +299,11 @@ class Event:
                 data_frame = events_dict[key]
                 events_data[key] = data_frame.data.loc[data_frame.data['event_name']==value]
         return cls(events_data)
-    
 
 
 
-        
-    
 
-    
+
+
+
+
