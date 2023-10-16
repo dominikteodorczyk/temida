@@ -58,3 +58,5 @@ class Constant:
     TAX_VALUE = 0.12
     TEST_STAKE = 100.00
     TOTAL_MIN_RETURN = 0.00
+    CLUSTER_STRINGS_THRESHOLDS = 0.001
+    # https://scikit-learn.org/stable/modules/generated/sklearn.cluster.AgglomerativeClustering.html
