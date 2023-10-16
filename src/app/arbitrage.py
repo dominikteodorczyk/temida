@@ -23,8 +23,9 @@ arbitrage calculations. Make sure to provide the required data, such as
 event outcomes and odds, when using the calculators.
 """
 
+from typing import List
 from pandas import DataFrame, concat
-from utils.technical import Constant
+from utils.technical import Constant, setup_logger
 from utils.events import MainEventsBoard, Event
 
 
@@ -36,23 +37,51 @@ class Arbitrage:
     -----------
     - data_object (MainEventsBoard): An object containing data related
         to sports betting events.
-    - self_arbitrage_pair (DataFrame): An empty DataFrame to store
-        arbitrage pairs.
+    - logger - logging func.
     """
 
     def __init__(self, data_object: MainEventsBoard) -> None:
         self.data_object = data_object
-        self.arbitration_opportunities = []
+        self.logger = setup_logger(name="ARBITRAGE", print_logs=True)
 
-    def calculate_arbitage(self):
-        for index, row in self.data_object.events_table.iterrows():
+    def calculate_opportunity(self, row) -> dict:
+        """
+        Calculates the arbitrage opportunity for a given event.
+
+        Parameters:
+        -----------
+        row (pandas.Series): A data row representing an event.
+
+        Returns:
+        --------
+        dict or None: Calculated arbitrage opportunity for the event.
+        """
+        try:
             event = Event.create(row, self.data_object.events_dict)
             arbitrage = EventArbitrage.create(event)
-            self.arbitration_opportunities.append(arbitrage.calculate())
-        for i in self.arbitration_opportunities:
-            if i:
-                print('---------------------------')
-                print(i)
+            return arbitrage.calculate()
+        except Exception as e:
+            self.logger.info(f"Error during opportunity calculation: {e})")
+            return None
+
+    def calculate_arbitage(self) -> List[str]:
+        """
+        Calculates arbitrage opportunities for each event in the events table.
+
+        Returns:
+        --------
+        list: A list containing calculated arbitrage opportunities for each event.
+        """
+        try:
+            arbitration_opportunities = [
+                self.calculate_opportunity(row)
+                for _, row in self.data_object.events_table.iterrows()
+            ]
+        except Exception as e:
+            self.logger.info(f"Error during arbitrage calculation: {e}")
+            arbitration_opportunities = []
+
+        return arbitration_opportunities
 
 
 class EventArbitrage:
@@ -117,7 +146,7 @@ class EventArbitrage:
         arbitration_opportunities = self.calculator.calculate_arbitrage()
         if arbitration_opportunities:
             return {
-                (self.event_name, self.event_date) : arbitration_opportunities
+                (self.event_name, self.event_date): arbitration_opportunities
             }
 
 
