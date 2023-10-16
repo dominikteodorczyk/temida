@@ -26,6 +26,7 @@ from pandas import DataFrame, Series
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.cluster import AgglomerativeClustering
 from utils.technical import Constant
+from time import time
 
 
 class BetEvent:
@@ -449,6 +450,37 @@ class MainEventsBoard:
 
         return clusters
 
+    def find_matching_events(self, main_event, other_events_dict) -> dict:
+        """
+        Find matching events for a given main event among events from
+        different bookmakers.
+
+        Parameters:
+        -----------
+        - main_event (str): The main event to find matches for.
+        - other_events_dict (dict): A dictionary containing events
+            from different bookmakers.
+
+        Returns:
+        --------
+        dict: A dictionary containing the best matching events
+        for each bookmaker.
+        """
+        matching_events_dict = {}
+        for key, value in other_events_dict.items():
+            best_match = None
+            for second_event in value:
+                events_list = [[main_event], [second_event]]
+                similarity = self.cluster_strings(events_list)
+                if len(similarity) == 1:
+                    best_match = second_event
+                    # modification by removing the external
+                    # list object to speed up calculations
+                    value.remove(best_match)
+            matching_events_dict[key] = best_match
+        return matching_events_dict
+
+
     def create_events_table(self) -> DataFrame:
         """
         Create an events table by clustering and matching events from
@@ -464,30 +496,23 @@ class MainEventsBoard:
 
         for date in dates_list:
             work_dict = self.create_provisor_dict(date)
-            main_list = work_dict[self.highest_number_of_records(work_dict)]
-            rest_dict = deepcopy(work_dict)
-            del rest_dict[self.highest_number_of_records(work_dict)]
+            main_bookmaker = self.highest_number_of_records(work_dict)
+            main_events_dict = work_dict[main_bookmaker]
+            other_events_dict  = deepcopy(work_dict)
+            del other_events_dict [main_bookmaker]
             i = 1
-            for main_event in main_list:
-                temporal_dict = {}
-                for key, value in rest_dict.items():
-                    best = None
-                    for secound_event in value:
-                        events_list = [[main_event], [secound_event]]
-                        similarity = self.cluster_strings(events_list)
-                        if len(similarity) == 1:
-                            best = secound_event
-                    temporal_dict[key] = best
-                temporal_dict[
-                    self.highest_number_of_records(work_dict)
-                ] = main_event
+            for main_event in main_events_dict:
+                start = time()
+                matching_events_dict=self.find_matching_events(main_event,other_events_dict)
+                matching_events_dict[main_bookmaker]=main_event
                 self.events_table = self.events_table._append(
-                    temporal_dict, ignore_index=True
+                    matching_events_dict, ignore_index=True
                 )
-                print(f"{i}/{len(main_list)}")
+                print(f"{i}/{len(main_events_dict)} - time: {time()-start}")
                 i += 1
         mask = self.events_table.count(axis=1) == 1
         self.events_table = self.events_table[~mask]
+        self.events_table.to_csv('merged.csv')
         return self.events_table
 
 
