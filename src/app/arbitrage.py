@@ -127,14 +127,16 @@ class EventArbitrage:
         ]
         event_name = first_key["event_name"].iloc[0]
         event_date = first_key["event_date"].iloc[0]
-        if first_key.shape[1] == 8:
+        print(first_key.shape[1])
+        print(first_key)
+        if first_key.shape[1] == 7:
             return cls(
                 event_object,
                 event_name,
                 event_date,
                 ThreeWayArbitrageCalculator(event_object),
             )
-        if first_key.shape[1] == 7:
+        if first_key.shape[1] == 6:
             return cls(
                 event_object,
                 event_name,
@@ -260,7 +262,7 @@ class TwoWayArbitrageCalculator(ArbitrageCalculator):
 
         return list_of_dicts
 
-    def get_values_from_dict(self, dictionary):
+    def get_values_from_dict(self, dictionary: dict):
         """
         Extract home win and away win values from a dictionary.
 
@@ -454,7 +456,7 @@ class ThreeWayArbitrageCalculator(ArbitrageCalculator):
 
         return list_of_dicts
 
-    def get_values_from_dict(self, dictionary):
+    def get_values_from_dict(self, dictionary:dict):
         """
         Extract home win, draw, and away win values from a dictionary.
 
@@ -578,6 +580,7 @@ class ThreeWayArbitrageCalculator(ArbitrageCalculator):
             )
 
             if event_probability >= 1.00:
+                print(event_probability)
                 pass
             else:
                 money_ratio = self.calculate_money_ratio(event_probability)
@@ -601,5 +604,6 @@ class ThreeWayArbitrageCalculator(ArbitrageCalculator):
                     possible_positiv_return_combination.append(combination)
                 else:
                     pass
+
         if possible_positiv_return_combination:
             return possible_positiv_return_combination
