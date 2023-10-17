@@ -130,7 +130,7 @@ class SuperbetTwoWayBets(SuperbetScraper):
             height = new_height
         self.logging.info(f"Data collected: {self.site_path}")
         self.driver.quit()
-        result_queue.put(self.events_data.data)
+        result_queue.put(self.events_data)
 
 class SuperbetThreeWayBets(SuperbetScraper):
     def __init__(self, site_path: str) -> None:
@@ -198,4 +198,4 @@ class SuperbetThreeWayBets(SuperbetScraper):
             height = new_height
         self.logging.info(f"Data collected: {self.site_path}")
         self.driver.quit()
-        result_queue.put(self.events_data.data)
+        result_queue.put(self.events_data)

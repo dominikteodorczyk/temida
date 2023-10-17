@@ -120,7 +120,7 @@ class FortunaTwoWayBets(FortunaScraper):
                 self.logging.error(f"Unknown bug, more here: {e}")
         self.logging.info(f"Data collected: {self.site_path}")
         self.driver.quit()
-        result_queue.put(self.events_data.data)
+        result_queue.put(self.events_data)
 
 
 class FortunaThreeWayBets(FortunaScraper):
@@ -166,4 +166,4 @@ class FortunaThreeWayBets(FortunaScraper):
                 self.logging.error(f"Unknown bug, more here: {e}")
         self.logging.info(f"Data collected: {self.site_path}")
         self.driver.quit()
-        result_queue.put(self.events_data.data)
+        result_queue.put(self.events_data)

@@ -125,7 +125,7 @@ class BetclicTwoWayBets(BetclicScraper):
                 self.logging.error(f"Unknown bug, more here: {e}")
         self.logging.info(f"Data collected: {self.site_path}")
         self.driver.quit()
-        result_queue.put(self.events_data.data)
+        result_queue.put(self.events_data)
 
 
 class BetclicThreeWayBets(BetclicScraper):
@@ -173,4 +173,4 @@ class BetclicThreeWayBets(BetclicScraper):
                 self.logging.error(f"Unknown bug, more here: {e}")
         self.logging.info(f"Data collected: {self.site_path}")
         self.driver.quit()
-        result_queue.put(self.events_data.data)
+        result_queue.put(self.events_data)
