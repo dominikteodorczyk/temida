@@ -98,12 +98,13 @@ class EventArbitrage:
     """
 
     def __init__(
-        self, event_object, event_name: str, event_date: str, calc
+        self, event_object, event_name: str, event_date: str, calc, event_names_list
     ) -> None:
         self.event_data: Event = event_object
         self.event_name = event_name
         self.event_date = event_date
         self.calculator = calc
+        self.event_names_list = event_names_list
 
     @classmethod
     def create(cls, event_object: Event):
@@ -122,19 +123,22 @@ class EventArbitrage:
         based on the type of arbitrage opportunities available in the provided
         Event object or None.
         """
+        event_names_list = []
+        for key, value in event_object.events_data.items():
+            event_names_list.append(value["event_name"].iloc[0])
+
         first_key = event_object.events_data[
             list(event_object.events_data.keys())[0]
         ]
         event_name = first_key["event_name"].iloc[0]
         event_date = first_key["event_date"].iloc[0]
-        print(first_key.shape[1])
-        print(first_key)
         if first_key.shape[1] == 7:
             return cls(
                 event_object,
                 event_name,
                 event_date,
                 ThreeWayArbitrageCalculator(event_object),
+                event_names_list
             )
         if first_key.shape[1] == 6:
             return cls(
@@ -142,13 +146,14 @@ class EventArbitrage:
                 event_name,
                 event_date,
                 TwoWayArbitrageCalculator(event_object),
+                event_names_list
             )
 
     def calculate(self):
         arbitration_opportunities = self.calculator.calculate_arbitrage()
         if arbitration_opportunities:
             return {
-                (self.event_name, self.event_date): arbitration_opportunities
+                (self.event_name, self.event_date): (self.event_names_list,arbitration_opportunities)
             }
 
 
@@ -580,7 +585,6 @@ class ThreeWayArbitrageCalculator(ArbitrageCalculator):
             )
 
             if event_probability >= 1.00:
-                print(event_probability)
                 pass
             else:
                 money_ratio = self.calculate_money_ratio(event_probability)
