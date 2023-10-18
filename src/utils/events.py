@@ -27,6 +27,8 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.cluster import AgglomerativeClustering
 from utils.technical import Constant
 from time import time
+from threading import Thread
+from queue import Queue
 
 
 class BetEvent:
@@ -450,36 +452,79 @@ class MainEventsBoard:
 
         return clusters
 
-    def find_matching_events(self, main_event, other_events_dict) -> dict:
-        """
-        Find matching events for a given main event among events from
-        different bookmakers.
-
-        Parameters:
-        -----------
-        - main_event (str): The main event to find matches for.
-        - other_events_dict (dict): A dictionary containing events
-            from different bookmakers.
-
-        Returns:
-        --------
-        dict: A dictionary containing the best matching events
-        for each bookmaker.
-        """
+    def run_matching_pool(self, main_event, other_events_dict) -> dict:
         matching_events_dict = {}
+        result_queue = Queue()
+        slots = []
+        results = []
         for key, value in other_events_dict.items():
-            best_match = None
-            for second_event in value:
-                events_list = [[main_event], [second_event]]
-                similarity = self.cluster_strings(events_list)
-                if len(similarity) == 1:
-                    best_match = second_event
-                    # modification by removing the external
-                    # list object to speed up calculations
-                    value.remove(best_match)
-            matching_events_dict[key] = best_match
+            thread = Thread(
+                target=self.find_matching_events_jaccard,
+                args=(
+                    key,
+                    value,
+                    main_event,
+                    result_queue,
+                ),
+            )
+            thread.start()
+            slots.append(thread)
+
+        for slot in slots:
+            slot.join()
+        while not result_queue.empty():
+            results.append(result_queue.get())
+
+        for match in results:
+            matching_events_dict[match[0]] = match[1]
+
         return matching_events_dict
 
+    def find_matching_events_cluster(self, key, value, main_event, result_queue):
+        best_match = None
+        for second_event in value:
+            events_list = [[main_event], [second_event]]
+            similarity = self.cluster_strings(events_list)
+            if len(similarity) == 1:
+                best_match = second_event
+                # modification by removing the external
+                # list object to speed up calculations
+                value.remove(best_match)
+        reuslt = (key, best_match)
+        result_queue.put(reuslt)
+
+    def find_matching_events_jaccard(
+        self, key, value, main_event, result_queue
+    ):
+        # test method with lower accuracy but higher speed of calc.
+        best_match = None
+        ratio = 0
+        for second_event in value:
+            try:
+                similarity = self.jaccard_similarity(main_event, second_event)
+                if similarity > 0.6:
+                    if similarity > ratio:
+                        # parts1 = [
+                        #     part.strip() for part in main_event.split("-")
+                        # ]
+                        # parts2 = [
+                        #     part.strip() for part in second_event.split("-")
+                        # ]
+                        # home_similarity = self.jaccard_similarity(
+                        #     parts1[0], parts2[0]
+                        # )
+                        # away_similarity = self.jaccard_similarity(
+                        #     parts1[1], parts2[1]
+                        # )
+                        # if (home_similarity > 0.5) and (away_similarity > 0.5):
+                            best_match = second_event
+                            ratio = similarity
+            except:
+                best_match = None
+
+        # value.remove(best_match)
+        reuslt = (key, best_match)
+        result_queue.put(reuslt)
 
     def create_events_table(self) -> DataFrame:
         """
@@ -493,26 +538,24 @@ class MainEventsBoard:
         """
         self.events_table = DataFrame(columns=self.get_cols_names())
         dates_list = self.get_unique_dates()
-
         for date in dates_list:
             work_dict = self.create_provisor_dict(date)
             main_bookmaker = self.highest_number_of_records(work_dict)
             main_events_dict = work_dict[main_bookmaker]
-            other_events_dict  = deepcopy(work_dict)
-            del other_events_dict [main_bookmaker]
+            other_events_dict = deepcopy(work_dict)
+            del other_events_dict[main_bookmaker]
             i = 1
             for main_event in main_events_dict:
-                start = time()
-                matching_events_dict=self.find_matching_events(main_event,other_events_dict)
-                matching_events_dict[main_bookmaker]=main_event
+                matching_events_dict = self.run_matching_pool(
+                    main_event, other_events_dict
+                )
+                matching_events_dict[main_bookmaker] = main_event
                 self.events_table = self.events_table._append(
                     matching_events_dict, ignore_index=True
                 )
-                print(f"{i}/{len(main_events_dict)} - time: {time()-start}")
-                i += 1
         mask = self.events_table.count(axis=1) == 1
         self.events_table = self.events_table[~mask]
-        self.events_table.to_csv('merged.csv')
+        self.events_table.to_csv("merged.csv")
         return self.events_table
 
 
