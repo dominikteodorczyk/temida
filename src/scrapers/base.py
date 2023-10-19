@@ -11,11 +11,16 @@ class Scraper:
         options.add_experimental_option("detach", True)
         self.driver = webdriver.Chrome(options=options)
         try:
-            self.driver.get(site_path)
+            if self.site_path != None:
+                self.driver.get(site_path)
+                self.wait = WebDriverWait(self.driver, 20)
+            else:
+                self.driver.quit()
+                pass
         except SessionNotCreatedException as e:
-            print(e)
+            self.driver.quit()
+            pass
 
-        self.wait = WebDriverWait(self.driver, 20)
 
     @classmethod
     def init_with(cls, site_path):
