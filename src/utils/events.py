@@ -504,19 +504,19 @@ class MainEventsBoard:
                 similarity = self.jaccard_similarity(main_event, second_event)
                 if similarity > 0.6:
                     if similarity > ratio:
-                        # parts1 = [
-                        #     part.strip() for part in main_event.split("-")
-                        # ]
-                        # parts2 = [
-                        #     part.strip() for part in second_event.split("-")
-                        # ]
-                        # home_similarity = self.jaccard_similarity(
-                        #     parts1[0], parts2[0]
-                        # )
-                        # away_similarity = self.jaccard_similarity(
-                        #     parts1[1], parts2[1]
-                        # )
-                        # if (home_similarity > 0.5) and (away_similarity > 0.5):
+                        parts1 = [
+                            part.strip() for part in main_event.split("-")
+                        ]
+                        parts2 = [
+                            part.strip() for part in second_event.split("-")
+                        ]
+                        home_similarity = self.jaccard_similarity(
+                            parts1[0], parts2[0]
+                        )
+                        away_similarity = self.jaccard_similarity(
+                            parts1[1], parts2[1]
+                        )
+                        if (home_similarity > 0.5) and (away_similarity > 0.5):
                             best_match = second_event
                             ratio = similarity
             except:
