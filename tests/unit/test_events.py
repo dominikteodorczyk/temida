@@ -33,7 +33,9 @@ class Test_MainEventsBoard:
         atributes = vars(MainEventsBoard())
         assert type(atributes["events_table"]) == pd.DataFrame
 
-    def test_MainEventsBoard_put_data_append_data_to_list(self, fortuna_board, sts_board):
+    def test_MainEventsBoard_put_data_append_data_to_list(
+        self, fortuna_board, sts_board
+    ):
         obj = MainEventsBoard()
         obj.put_data(fortuna_board)
         assert len(obj.events_dict) == 1
