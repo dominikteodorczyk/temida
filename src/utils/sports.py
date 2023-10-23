@@ -1,10 +1,40 @@
-from scrapers.betclic import *
-from scrapers.sts import *
-from scrapers.superbet import *
-from scrapers.fortuna import *
+"""
+Module: events_types
+
+This module defines classes and dictionaries representing different
+sports and their corresponding bet types for sports betting scrapers.
+
+Classes:
+--------
+1. EventsTypes: A class defining different sports and their corresponding
+    bet types.
+
+Dictionaries:
+-------------
+1. ScrapersDict: A dictionary mapping bookmakers to their
+    corresponding scraper classes.
+"""
+
+from scrapers.betclic import BetclicTwoWayBets, BetclicThreeWayBets
+from scrapers.sts import STSTwoWayBets, STSThreeWayBets
+from scrapers.superbet import SuperbetTwoWayBets, SuperbetThreeWayBets
+from scrapers.fortuna import FortunaTwoWayBets, FortunaThreeWayBets
 
 
 class EventsTypes:
+    """
+    Class representing various sports and their corresponding bet types.
+
+    Attributes:
+    -----------
+    sports (dict): A dictionary mapping sports to their bet types.
+
+    Note:
+    -----
+    The sports dictionary is intended to be used by other modules to
+    retrieve bet types for specific sports.
+    """
+
     def __init__(self) -> None:
         self.sports = {
             "football": 3,
@@ -22,16 +52,38 @@ class EventsTypes:
             "snooker": 2,
         }
 
+
 class ScrapersDict:
+    """
+    Class representing a dictionary of bookmakers and their corresponding
+    scraper classes.
+
+    Attributes:
+    -----------
+    scrapers (dict): A dictionary mapping bookmakers to lists of scraper
+    classes.
+
+    Note:
+    -----
+    The scrapers dictionary is intended to be used by other modules
+    to retrieve scraper classes for specific bookmakers.
+    """
+
     def __init__(self) -> None:
         self.scrapers = {
-            STS() : [STSTwoWayBets,STSThreeWayBets],
-            Fortuna() : [FortunaTwoWayBets,FortunaThreeWayBets],
-            Betclic() : [BetclicTwoWayBets,BetclicThreeWayBets],
-            Superbet() : [SuperbetTwoWayBets,SuperbetThreeWayBets]
+            STS(): [STSTwoWayBets, STSThreeWayBets],
+            Fortuna(): [FortunaTwoWayBets, FortunaThreeWayBets],
+            Betclic(): [BetclicTwoWayBets, BetclicThreeWayBets],
+            Superbet(): [SuperbetTwoWayBets, SuperbetThreeWayBets],
         }
 
+
 class STS:
+    """
+    Class representing the STS bookmaker and its legal status, along with
+    URLs for different sports.
+    """
+
     def __init__(self) -> None:
         self.legal = True
         self.football = (
@@ -62,6 +114,11 @@ class STS:
 
 
 class Fortuna:
+    """
+    Class representing the Fortuna bookmaker and its legal status, along with
+    URLs for different sports.
+    """
+
     def __init__(self) -> None:
         self.legal = True
         self.football = (
@@ -92,6 +149,11 @@ class Fortuna:
 
 
 class Betclic:
+    """
+    Class representing the Betclic bookmaker and its legal status, along with
+    URLs for different sports.
+    """
+
     def __init__(self) -> None:
         self.legal = True
         self.football = "https://www.betclic.pl/pilka-nozna-s1"
@@ -110,6 +172,11 @@ class Betclic:
 
 
 class Superbet:
+    """
+    Class representing the Superbet bookmaker and its legal status, along with
+    URLs for different sports.
+    """
+
     def __init__(self) -> None:
         self.legal = True
         self.football = "https://superbet.pl/zaklady-bukmacherskie/pilka-nozna"
@@ -136,6 +203,11 @@ class Superbet:
 
 
 class Forbet:
+    """
+    Class representing the Forbet bookmaker and its legal status, along with
+    URLs for different sports.
+    """
+
     def __init__(self) -> None:
         self.legal = True
         self.football = "https://www.iforbet.pl/zaklady-bukmacherskie/1"
