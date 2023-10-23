@@ -22,13 +22,13 @@ Classes:
 
 from typing import List, Dict
 from copy import deepcopy
+from threading import Thread
+from queue import Queue
 from pandas import DataFrame, Series
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.cluster import AgglomerativeClustering
 from utils.technical import Constant
-from time import time
-from threading import Thread
-from queue import Queue
+
 
 
 class BetEvent:
@@ -453,6 +453,18 @@ class MainEventsBoard:
         return clusters
 
     def run_matching_pool(self, main_event, other_events_dict) -> dict:
+        """
+        Run a matching pool to find matching events.
+
+        Parameters:
+        -----------
+        main_event (str): The main event for which matches are sought.
+        other_events_dict (dict): A dictionary containing events to match against.
+
+        Returns:
+        --------
+        dict: A dictionary containing matching events.
+        """
         matching_events_dict = {}
         result_queue = Queue()
         slots = []
@@ -480,7 +492,19 @@ class MainEventsBoard:
 
         return matching_events_dict
 
-    def find_matching_events_cluster(self, key, value, main_event, result_queue):
+    def find_matching_events_cluster(
+        self, key, value, main_event, result_queue
+    ):
+        """
+        Find matching events based on clustering.
+
+        Parameters:
+        -----------
+        key (str): The key of the event in the dictionary.
+        value (list): The list of events to match against.
+        main_event (str): The main event for which matches are sought.
+        result_queue (Queue): A queue to store the results.
+        """
         best_match = None
         for second_event in value:
             events_list = [[main_event], [second_event]]
@@ -496,6 +520,16 @@ class MainEventsBoard:
     def find_matching_events_jaccard(
         self, key, value, main_event, result_queue
     ):
+        """
+        Find matching events based on Jaccard similarity.
+
+        Parameters:
+        -----------
+        key (str): The key of the event in the dictionary.
+        value (list): The list of events to match against.
+        main_event (str): The main event for which matches are sought.
+        result_queue (Queue): A queue to store the results.
+        """
         # test method with lower accuracy but higher speed of calc.
         best_match = None
         ratio = 0
@@ -544,7 +578,6 @@ class MainEventsBoard:
             main_events_dict = work_dict[main_bookmaker]
             other_events_dict = deepcopy(work_dict)
             del other_events_dict[main_bookmaker]
-            i = 1
             for main_event in main_events_dict:
                 matching_events_dict = self.run_matching_pool(
                     main_event, other_events_dict
@@ -555,7 +588,6 @@ class MainEventsBoard:
                 )
         mask = self.events_table.count(axis=1) == 1
         self.events_table = self.events_table[~mask]
-        self.events_table.to_csv("merged.csv")
         return self.events_table
 
 
