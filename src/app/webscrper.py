@@ -1,7 +1,17 @@
+"""
+Module containing the ScrapersPool class for managing a pool of scrapers
+to collect sports betting data.
+
+Classes:
+---------
+ScrapersPool: A class representing a pool of scrapers for collecting sports
+    betting data.
+"""
+
+from queue import Queue
+from threading import Thread
 from utils.sports import ScrapersDict
 from utils.events import MainEventsBoard
-from threading import Thread
-from queue import Queue
 
 
 class ScrapersPool:
