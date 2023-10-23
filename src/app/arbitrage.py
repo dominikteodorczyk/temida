@@ -98,7 +98,12 @@ class EventArbitrage:
     """
 
     def __init__(
-        self, event_object, event_name: str, event_date: str, calc, event_names_list
+        self,
+        event_object,
+        event_name: str,
+        event_date: str,
+        calc,
+        event_names_list,
     ) -> None:
         self.event_data: Event = event_object
         self.event_name = event_name
@@ -138,7 +143,7 @@ class EventArbitrage:
                 event_name,
                 event_date,
                 ThreeWayArbitrageCalculator(event_object),
-                event_names_list
+                event_names_list,
             )
         if first_key.shape[1] == 6:
             return cls(
@@ -146,15 +151,30 @@ class EventArbitrage:
                 event_name,
                 event_date,
                 TwoWayArbitrageCalculator(event_object),
-                event_names_list
+                event_names_list,
             )
 
-    def calculate(self):
+    def calculate(self) -> dict:
+        """
+        Calculate arbitrage opportunities for the current event.
+
+        Returns a dictionary containing information about the event and
+        its corresponding arbitrage opportunities if they exist.
+
+        Returns:
+        --------
+        dict: A dictionary with event details and arbitrage opportunities,
+              or an empty dictionary if no opportunities are found.
+        """
         arbitration_opportunities = self.calculator.calculate_arbitrage()
         if arbitration_opportunities:
             return {
-                (self.event_name, self.event_date): (self.event_names_list,arbitration_opportunities)
+                (self.event_name, self.event_date): (
+                    self.event_names_list,
+                    arbitration_opportunities,
+                )
             }
+        return {}
 
 
 class ArbitrageCalculator:
@@ -461,7 +481,7 @@ class ThreeWayArbitrageCalculator(ArbitrageCalculator):
 
         return list_of_dicts
 
-    def get_values_from_dict(self, dictionary:dict):
+    def get_values_from_dict(self, dictionary: dict):
         """
         Extract home win, draw, and away win values from a dictionary.
 
