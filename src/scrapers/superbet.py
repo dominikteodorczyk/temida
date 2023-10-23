@@ -25,6 +25,7 @@ from utils.events import (
 )
 from utils.technical import setup_logger
 
+
 class SuperbetScraper(Scraper):
     """
     A specialized scraper for collecting data from Superbet, inherits

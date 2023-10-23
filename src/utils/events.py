@@ -30,7 +30,6 @@ from sklearn.cluster import AgglomerativeClustering
 from utils.technical import Constant
 
 
-
 class BetEvent:
     """
     BetEvent - Base class for representing a betting event.

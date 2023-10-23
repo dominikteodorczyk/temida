@@ -34,6 +34,7 @@ class EventsTypes:
     The sports dictionary is intended to be used by other modules to
     retrieve bet types for specific sports.
     """
+
     def __init__(self) -> None:
         self.sports = {
             "football": 3,
@@ -67,6 +68,7 @@ class ScrapersDict:
     The scrapers dictionary is intended to be used by other modules
     to retrieve scraper classes for specific bookmakers.
     """
+
     def __init__(self) -> None:
         self.scrapers = {
             STS(): [STSTwoWayBets, STSThreeWayBets],
@@ -81,6 +83,7 @@ class STS:
     Class representing the STS bookmaker and its legal status, along with
     URLs for different sports.
     """
+
     def __init__(self) -> None:
         self.legal = True
         self.football = (
@@ -115,6 +118,7 @@ class Fortuna:
     Class representing the Fortuna bookmaker and its legal status, along with
     URLs for different sports.
     """
+
     def __init__(self) -> None:
         self.legal = True
         self.football = (
@@ -149,6 +153,7 @@ class Betclic:
     Class representing the Betclic bookmaker and its legal status, along with
     URLs for different sports.
     """
+
     def __init__(self) -> None:
         self.legal = True
         self.football = "https://www.betclic.pl/pilka-nozna-s1"
@@ -171,6 +176,7 @@ class Superbet:
     Class representing the Superbet bookmaker and its legal status, along with
     URLs for different sports.
     """
+
     def __init__(self) -> None:
         self.legal = True
         self.football = "https://superbet.pl/zaklady-bukmacherskie/pilka-nozna"
@@ -201,6 +207,7 @@ class Forbet:
     Class representing the Forbet bookmaker and its legal status, along with
     URLs for different sports.
     """
+
     def __init__(self) -> None:
         self.legal = True
         self.football = "https://www.iforbet.pl/zaklady-bukmacherskie/1"

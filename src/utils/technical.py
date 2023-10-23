@@ -79,6 +79,7 @@ class Constant:
     - AgglomerativeClustering Documentation:
     https://scikit-learn.org/stable/modules/generated/sklearn.cluster.AgglomerativeClustering.html
     """
+
     TAX_VALUE = 0.12
     TEST_STAKE = 100.00
     TOTAL_MIN_RETURN = 0.00
