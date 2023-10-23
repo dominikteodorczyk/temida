@@ -1,10 +1,21 @@
-from selenium import webdriver
+"""
+Module for the FortunaScraper classes, a specialized scrapers for collecting
+data from Fortuna.
+
+Classes:
+---------
+FortunaScraper: A specialized scraper for collecting data from Fortuna,
+    inherits from Scraper.
+FortunaTwoWayBets(FortunaScraper):A class representing a scraper for
+    collecting two-way sports betting data from Fortuna.
+FortunaThreeWayBets(FortunaScraper): A class representing a scraper for
+    collecting three-way sports betting data from Fortuna.
+"""
+
+import time
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
 from scrapers.base import Scraper
-import time
-from selenium.webdriver.support import expected_conditions as EC
-from datetime import datetime
 from utils.parsers import FortunaParser
 from utils.events import (
     TwoWayBetEvent,
@@ -13,10 +24,23 @@ from utils.events import (
     ThreeWayBetEventsTable,
 )
 from utils.technical import setup_logger
-from queue import Queue
 
 
 class FortunaScraper(Scraper):
+    """
+    A specialized scraper for collecting data from Fortuna, inherits
+    from Scraper.
+
+    Attributes:
+    -----------
+    - site_path (str): The URL of the Fortuna website.
+    - competition_boxes (list): A list to store competition boxes
+        on the Fortuna webpage.
+    - events_objects (list): A dictionary to store event objects
+        collected from Fortuna.
+    - logging (Logger): The logger for handling log messages.
+    """
+
     def __init__(self, site_path: str) -> None:
         super().__init__(site_path)
         self.competition_boxes: list = []
@@ -25,6 +49,9 @@ class FortunaScraper(Scraper):
         self.logging.info(f"Starting to collect data: {self.site_path}")
 
     def close_cookie_msg(self):
+        """
+        Close the cookie message on the webpage.
+        """
         try:
             close_button = self.driver.find_element(
                 By.XPATH, '//*[@id="cookie-consent-button-accept"]'
@@ -36,6 +63,9 @@ class FortunaScraper(Scraper):
             self.logging.error(f"Unknown bug, more here: {e}")
 
     def get_whole_site(self):
+        """
+        Scroll through the entire webpage to ensure all content is loaded.
+        """
         last_height = self.driver.execute_script(
             "return document.body.scrollHeight"
         )
@@ -53,14 +83,20 @@ class FortunaScraper(Scraper):
         time.sleep(1)
 
     def get_segments(self):
+        """
+        Collect and store the segment elements from the current webpage.
+        """
         try:
             self.competition_boxes = self.driver.find_elements(
                 By.XPATH, '//*[@id="sport-events-list-content"]/section[*]'
             )
-        except NoSuchElementException as e:
-            self.logging.warning(f"No segment elements")
+        except NoSuchElementException:
+            self.logging.warning("No segment elements")
 
     def get_all_events_objects(self):
+        """
+        Collect and store all event objects from the current webpage.
+        """
         for box in self.competition_boxes:
             for event in box.find_elements(
                 By.XPATH, ".//div[2]/div/div/table/tbody/tr[*]"
@@ -69,6 +105,11 @@ class FortunaScraper(Scraper):
                     self.events_objects.append(event)
 
     def get_events_from_site(self):
+        """
+        Attempts to collect events by closing cookie messages, scrolling
+        through the entire site, extracting segments, and finally obtaining
+        all event objects from the segments.
+        """
         try:
             self.close_cookie_msg()
             self.get_whole_site()
@@ -81,11 +122,48 @@ class FortunaScraper(Scraper):
 
 
 class FortunaTwoWayBets(FortunaScraper):
+    """
+    A class representing a scraper for collecting two-way sports betting
+    data from Fortuna.
+
+    Inherits from:
+    --------------
+    FortunaScraper
+
+    Attributes:
+    ------------
+    events_data (TwoWayBetEventsTable): An instance of the
+    TwoWayBetEventsTable class for storing and managing two-way
+    sports betting event data.
+
+    Parameters:
+    -----------
+    site_path (str): The URL of the Fortuna webpage to scrape.
+    """
+
     def __init__(self, site_path: str) -> None:
         super().__init__(site_path)
         self.events_data = TwoWayBetEventsTable("FORTUNA")
 
     def get_events_values(self, result_queue):
+        """
+        Collects and processes two-way sports betting data from
+        the Fortuna webpage.
+
+        This method scrapes and extracts relevant information
+        from the Fortuna webpage for two-way sports betting events.
+        The collected data is then formatted and added to
+        the TwoWayBetEventsTable using the FortunaParser.
+
+        Parameters:
+        -----------
+        result_queue (Queue): A queue to store the result
+        (TwoWayBetEventsTable) for further processing.
+
+        Returns:
+        --------
+        None
+        """
         self.get_events_from_site()
         for event in self.events_objects:
             try:
@@ -114,7 +192,7 @@ class FortunaTwoWayBets(FortunaScraper):
                             event_data, FortunaParser()
                         )
                     )
-            except NoSuchElementException as e:
+            except NoSuchElementException:
                 pass
             except Exception as e:
                 self.logging.error(f"Unknown bug, more here: {e}")
@@ -124,11 +202,48 @@ class FortunaTwoWayBets(FortunaScraper):
 
 
 class FortunaThreeWayBets(FortunaScraper):
+    """
+    A class representing a scraper for collecting three-way sports betting
+    data from Fortuna.
+
+    Inherits from:
+    --------------
+    FortunaScraper
+
+    Attributes:
+    ------------
+    events_data (ThreeWayBetEventsTable): An instance of the
+    ThreeWayBetEventsTable class for storing and managing three-way
+    sports betting event data.
+
+    Parameters:
+    -----------
+    site_path (str): The URL of the Fortuna webpage to scrape.
+    """
+
     def __init__(self, site_path: str) -> None:
         super().__init__(site_path)
         self.events_data = ThreeWayBetEventsTable("FORTUNA")
 
     def get_events_values(self, result_queue):
+        """
+        Collects and processes three-way sports betting data from
+        the Fortuna webpage.
+
+        This method scrapes and extracts relevant information
+        from the Fortuna webpage for three-way sports betting events.
+        The collected data is then formatted and added to
+        the ThreeWayBetEventsTable using the FortunaParser.
+
+        Parameters:
+        -----------
+        result_queue (Queue): A queue to store the result
+        (ThreeWayBetEventsTable) for further processing.
+
+        Returns:
+        --------
+        None
+        """
         self.get_events_from_site()
         for event in self.events_objects:
             try:
@@ -160,7 +275,7 @@ class FortunaThreeWayBets(FortunaScraper):
                             event_data, FortunaParser()
                         )
                     )
-            except NoSuchElementException as e:
+            except NoSuchElementException:
                 pass
             except Exception as e:
                 self.logging.error(f"Unknown bug, more here: {e}")
