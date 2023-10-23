@@ -10,7 +10,7 @@ def setup_logger(
     name: str,
     level_of_log=logging.INFO,
     print_logs: bool = False,
-    log_file_name: str = f"last_session.log",
+    log_file_name: str = "last_session.log",
 ) -> logging.Logger:
     """
     Set up a logger with the specified name, log file, log level,
@@ -53,8 +53,35 @@ def setup_logger(
 
     return logger
 
+
 class Constant:
+    """
+    Constant module includes predefined constants for the sports
+    betting application.
+
+    This module defines various constants used throughout the
+    application for calculations, testing, and configuration.
+
+    Constants:
+    ----------
+    1. TAX_VALUE (float): The default tax value for calculating
+        returns on bets. Default is 0.12 (12%).
+    2. TEST_STAKE (float): The default stake value used for
+        testing purposes. Default is 100.00.
+    3. TOTAL_MIN_RETURN (float): The minimum return value expected
+        from a bet. Default is 0.00.
+    4. CLUSTER_STRINGS_THRESHOLD (float): The threshold value for
+        string clustering in the application.  It is used in the
+        `cluster_strings` method. Default is 0.001.
+
+    References:
+    -----------
+    - AgglomerativeClustering Documentation:
+    https://scikit-learn.org/stable/modules/generated/sklearn.cluster.AgglomerativeClustering.html
+    """
 
     TAX_VALUE = 0.12
     TEST_STAKE = 100.00
     TOTAL_MIN_RETURN = 0.00
+    CLUSTER_STRINGS_THRESHOLDS = 0.001
+    # https://scikit-learn.org/stable/modules/generated/sklearn.cluster.AgglomerativeClustering.html

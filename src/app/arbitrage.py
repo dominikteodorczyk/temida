@@ -23,8 +23,9 @@ arbitrage calculations. Make sure to provide the required data, such as
 event outcomes and odds, when using the calculators.
 """
 
+from typing import List
 from pandas import DataFrame, concat
-from utils.technical import Constant
+from utils.technical import Constant, setup_logger
 from utils.events import MainEventsBoard, Event
 
 
@@ -36,19 +37,51 @@ class Arbitrage:
     -----------
     - data_object (MainEventsBoard): An object containing data related
         to sports betting events.
-    - self_arbitrage_pair (DataFrame): An empty DataFrame to store
-        arbitrage pairs.
+    - logger - logging func.
     """
 
     def __init__(self, data_object: MainEventsBoard) -> None:
         self.data_object = data_object
-        self.arbitrage_pair = DataFrame()
+        self.logger = setup_logger(name="ARBITRAGE", print_logs=True)
 
-    def calculate_arbitage(self):
-        for index, row in self.data_object.events_table.iterrows():
+    def calculate_opportunity(self, row) -> dict:
+        """
+        Calculates the arbitrage opportunity for a given event.
+
+        Parameters:
+        -----------
+        row (pandas.Series): A data row representing an event.
+
+        Returns:
+        --------
+        dict or None: Calculated arbitrage opportunity for the event.
+        """
+        try:
             event = Event.create(row, self.data_object.events_dict)
             arbitrage = EventArbitrage.create(event)
-            # arbitrage.parepare_data()
+            return arbitrage.calculate()
+        except Exception as e:
+            self.logger.info(f"Error during opportunity calculation: {e})")
+            return None
+
+    def calculate_arbitage(self) -> List[str]:
+        """
+        Calculates arbitrage opportunities for each event in the events table.
+
+        Returns:
+        --------
+        list: A list containing calculated arbitrage opportunities for each event.
+        """
+        try:
+            arbitration_opportunities = [
+                self.calculate_opportunity(row)
+                for _, row in self.data_object.events_table.iterrows()
+            ]
+        except Exception as e:
+            self.logger.info(f"Error during arbitrage calculation: {e}")
+            arbitration_opportunities = []
+
+        return arbitration_opportunities
 
 
 class EventArbitrage:
@@ -65,15 +98,18 @@ class EventArbitrage:
     """
 
     def __init__(
-        self, event_object, event_name: str, event_date: str, calc
+        self,
+        event_object,
+        event_name: str,
+        event_date: str,
+        calc,
+        event_names_list,
     ) -> None:
         self.event_data: Event = event_object
         self.event_name = event_name
         self.event_date = event_date
         self.calculator = calc
-
-    def __str__(self) -> str:
-        return self.event_name
+        self.event_names_list = event_names_list
 
     @classmethod
     def create(cls, event_object: Event):
@@ -92,33 +128,53 @@ class EventArbitrage:
         based on the type of arbitrage opportunities available in the provided
         Event object or None.
         """
+        event_names_list = []
+        for key, value in event_object.events_data.items():
+            event_names_list.append(value["event_name"].iloc[0])
+
         first_key = event_object.events_data[
             list(event_object.events_data.keys())[0]
         ]
         event_name = first_key["event_name"].iloc[0]
         event_date = first_key["event_date"].iloc[0]
-        if first_key.shape[1] == 8:
-            return cls(
-                event_object,
-                event_name,
-                event_date,
-                ThreeWayArbitrageCalculator(event_object),
-            )
         if first_key.shape[1] == 7:
             return cls(
                 event_object,
                 event_name,
                 event_date,
+                ThreeWayArbitrageCalculator(event_object),
+                event_names_list,
+            )
+        if first_key.shape[1] == 6:
+            return cls(
+                event_object,
+                event_name,
+                event_date,
                 TwoWayArbitrageCalculator(event_object),
+                event_names_list,
             )
 
-    def parepare_data(self):
-        # bets_dataframe = self.calculator.create_data_source(
-        # self.event_data)
-        # bets_combination = self.calculator.create_combinations(
-        # bets_dataframe)
-        # print(bets_combination)
-        pass
+    def calculate(self) -> dict:
+        """
+        Calculate arbitrage opportunities for the current event.
+
+        Returns a dictionary containing information about the event and
+        its corresponding arbitrage opportunities if they exist.
+
+        Returns:
+        --------
+        dict: A dictionary with event details and arbitrage opportunities,
+              or an empty dictionary if no opportunities are found.
+        """
+        arbitration_opportunities = self.calculator.calculate_arbitrage()
+        if arbitration_opportunities:
+            return {
+                (self.event_name, self.event_date): (
+                    self.event_names_list,
+                    arbitration_opportunities,
+                )
+            }
+        return {}
 
 
 class ArbitrageCalculator:
@@ -231,7 +287,7 @@ class TwoWayArbitrageCalculator(ArbitrageCalculator):
 
         return list_of_dicts
 
-    def get_values_from_dict(self, dictionary):
+    def get_values_from_dict(self, dictionary: dict):
         """
         Extract home win and away win values from a dictionary.
 
@@ -425,7 +481,7 @@ class ThreeWayArbitrageCalculator(ArbitrageCalculator):
 
         return list_of_dicts
 
-    def get_values_from_dict(self, dictionary):
+    def get_values_from_dict(self, dictionary: dict):
         """
         Extract home win, draw, and away win values from a dictionary.
 
@@ -572,5 +628,6 @@ class ThreeWayArbitrageCalculator(ArbitrageCalculator):
                     possible_positiv_return_combination.append(combination)
                 else:
                     pass
+
         if possible_positiv_return_combination:
             return possible_positiv_return_combination

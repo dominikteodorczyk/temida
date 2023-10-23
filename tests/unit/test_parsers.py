@@ -4,6 +4,14 @@ from datetime import datetime
 
 
 class Test_Parser:
+    """
+    Test Class:
+    ------------
+    This class contains unit tests for the Parser class
+    methods. Each test method focuses on a right expected value
+    returned after.
+    """
+
     @pytest.fixture
     def example_data(self):
         return {
@@ -27,6 +35,17 @@ class Test_Parser:
         }
 
     def test_parse_home_win_return_float(self, example_data):
+        """
+        Test Case:
+        -----------
+        Parsing home team win odds should return a float.
+
+        Steps:
+        ------
+        1. Create a Parser instance.
+        2. Call parse_home_win with the provided example data.
+        3. Assert that the returned value is of type float.
+        """
         parser = Parser()
         value = parser.parse_home_win(example_data["home_team_win"])
         assert type(value) is float
@@ -34,11 +53,33 @@ class Test_Parser:
     def test_parse_home_win_return_proper_value(
         self, example_data, expected_return
     ):
+        """
+        Test Case:
+        -----------
+        Parsing home team win odds should return the proper value.
+
+        Steps:
+        ------
+        1. Create a Parser instance.
+        2. Call parse_home_win with the provided example data.
+        3. Assert that the returned value is equal to the expected value.
+        """
         parser = Parser()
         value = parser.parse_home_win(example_data["home_team_win"])
         assert value == expected_return["home_team_win"]
 
     def test_parse_draw_return_float(self, example_data):
+        """
+        Test Case:
+        -----------
+        Parsing draw odds should return a float value.
+
+        Steps:
+        ------
+        1. Create a Parser instance.
+        2. Call parse_home_win with the provided example data.
+        3. Assert that the returned value is of type float.
+        """
         parser = Parser()
         value = parser.parse_home_win(example_data["draw"])
         assert type(value) is float
@@ -46,11 +87,33 @@ class Test_Parser:
     def test_parse_draw_return_proper_value(
         self, example_data, expected_return
     ):
+        """
+        Test Case:
+        -----------
+        Parsing draw odds should return the expected float value.
+
+        Steps:
+        ------
+        1. Create a Parser instance.
+        2. Call parse_home_win with the provided example data.
+        3. Assert that the returned value matches the expected value.
+        """
         parser = Parser()
         value = parser.parse_home_win(example_data["draw"])
         assert value == expected_return["draw"]
 
     def test_parse_away_win_return_float(self, example_data):
+        """
+        Test Case:
+        -----------
+        Parsing away team win odds should return a float value.
+
+        Steps:
+        ------
+        1. Create a Parser instance.
+        2. Call parse_away_win with the provided example data.
+        3. Assert that the returned value is of type float.
+        """
         parser = Parser()
         value = parser.parse_home_win(example_data["away_team_win"])
         assert type(value) is float
@@ -58,6 +121,17 @@ class Test_Parser:
     def test_parse_away_win_return_proper_value(
         self, example_data, expected_return
     ):
+        """
+        Test Case:
+        -----------
+        Parsing away team win odds should return the expected float value.
+
+        Steps:
+        ------
+        1. Create a Parser instance.
+        2. Call parse_away_win with the provided example data.
+        3. Assert that the returned value is equal to the expected value.
+        """
         parser = Parser()
         value = parser.parse_home_win(example_data["away_team_win"])
         assert value == expected_return["away_team_win"]
