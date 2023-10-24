@@ -1,6 +1,12 @@
-from utils.parsers import *
+from utils.parsers import (
+    Parser,
+    BetclicParser,
+    FortunaParser,
+    STSParser,
+    SuperbetParser,
+)
 import pytest
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 class Test_Parser:
