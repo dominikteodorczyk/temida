@@ -43,3 +43,6 @@ This command will create a virtual environment named "venv" in the project direc
 This command will download and install all the required modules and libraries that the project requires for proper operation. The `requirements.txt` file should be located in the project's root directory and contain a list of dependencies with their versions.<br>
 - The project has been successfully installed!<br>
 - In case the application displays an error about the wrong version of chromedriver.exe compatible with your browser you can find at : https://chromedriver.chromium.org/downloads
+
+
+<a href="https://www.flaticon.com/free-icons/themis" title="themis icons">Themis icons created by max.icons - Flaticon</a>
