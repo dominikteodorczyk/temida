@@ -37,37 +37,131 @@ class MainOperator:
 
     def __init__(self) -> None:
         reuslts = DataOperator().sort_data()
+        MailOperator()
         print(reuslts)
 
 
 class DataOperator:
-
     """
     DataOperator class manages the retrieval of sports betting data.
 
     This class contains a static method, get_data(), that iterates over
     different sports and bet types, retrieves data using DisciplineOperator,
     and prints the opportunities.
+
+    Attributes:
+    - results (list): A list to store results retrieved for different sports s
+        and bet types.
+    - two_way_results (DataFrame): A DataFrame to store results for two-way
+        betting opportunities.
+    - three_way_results (DataFrame): A DataFrame to store results for
+        three-way betting opportunities.
     """
 
     def __init__(self) -> None:
-        self.results = self.get_data()
+        self.results = []
+        self.two_way_results = DataFrame()
+        self.three_way_results = DataFrame()
 
     def get_data(self):
         """
         Retrieves sports betting data for various sports and bet types.
         """
-        opportunities = []
         for sport, bet_type in EventsTypes().sports.items():
-            opportunities.append(
+            self.results.append(
                 DisciplineOperator(sport, bet_type).scan_market()
             )
-        return opportunities
+
+    def sort_two_way(self, opportunity, sport, event_data, names_variation):
+        """
+        Sorts and stores data for two-way betting opportunities.
+
+        Args:
+        - opportunity (list): List of betting opportunities for a specific
+            event.
+        - sport (str): The sport for which the data is sorted.
+        - event_data (tuple): Tuple containing event details (name, date).
+        - names_variation (list): List of name variations for the event
+            participants.
+        """
+        for opp in opportunity:
+            i = 1
+            event_to_table = {
+                "sport": sport,
+                "event": event_data[0],
+                "event date": event_data[1],
+                "1": opp[
+                    [
+                        key
+                        for key in opp.keys()
+                        if key.endswith("home_team_win")
+                    ][0]
+                ],
+                "2": opp[
+                    [
+                        key
+                        for key in opp.keys()
+                        if key.endswith("away_team_win")
+                    ][0]
+                ],
+            }
+            for name_variation in names_variation:
+                event_to_table[f"name_{i}"] = name_variation
+                i += 1
+
+            self.two_way_results = self.two_way_results._append(
+                event_to_table, ignore_index=True
+            )
+
+    def sort_three_way(self, opportunity, sport, event_data, names_variation):
+        """
+        Sorts and stores data for three-way betting opportunities.
+
+        Args:
+        - opportunity (list): List of betting opportunities for a specific
+            event.
+        - sport (str): The sport for which the data is sorted.
+        - event_data (tuple): Tuple containing event details (name, date).
+        - names_variation (list): List of name variations for the event
+            participants.
+        """
+        for opp in opportunity:
+            i = 1
+            event_to_table = {
+                "sport": sport,
+                "event": event_data[0],
+                "event date": event_data[1],
+                "1": opp[
+                    [
+                        key
+                        for key in opp.keys()
+                        if key.endswith("home_team_win")
+                    ][0]
+                ],
+                "X": opp[
+                    [key for key in opp.keys() if key.endswith("draw")][0]
+                ],
+                "2": opp[
+                    [
+                        key
+                        for key in opp.keys()
+                        if key.endswith("away_team_win")
+                    ][0]
+                ],
+            }
+            for name_variation in names_variation:
+                event_to_table[f"name_{i}"] = name_variation
+                i += 1
+
+            self.three_way_results = self.three_way_results._append(
+                event_to_table, ignore_index=True
+            )
 
     def sort_data(self):
-        twoway = DataFrame()
-        threeway = DataFrame()
-
+        """
+        Sorts and stores data for both two-way and three-way betting
+        opportunities.
+        """
         for sport_type in self.results:
             sport = next(iter(sport_type.keys()))
             for event in sport_type[sport]:
@@ -76,40 +170,16 @@ class DataOperator:
                     event_values = next(iter(event.values()))
                     names_variation = event_values[0]
                     opportunity = event_values[1]
-
+                    print(len(opportunity[0]))
                     if len(opportunity[0]) == 3:
-                        for opp in opportunity:
-                            i = 1
-                            event_to_table = {
-                                    'sport':sport,
-                                    'event': event_data[0],
-                                    "event date": event_data[1],
-                                    "1" : opp[[key for key in opp.keys() if key.endswith("home_team_win")][0]],
-                                    "X" : opp[[key for key in opp.keys() if key.endswith("draw")][0]],
-                                    "2" : opp[[key for key in opp.keys() if key.endswith("away_team_win")][0]]
-                                    }
-                            for name_variation in names_variation:
-                                event_to_table[f'name_{i}'] = name_variation
-                                i += 1
-
-                            threeway = threeway._append(event_to_table,ignore_index=True)
-
+                        self.sort_three_way(
+                            opportunity, sport, event_data, names_variation
+                        )
                     if len(opportunity[0]) == 2:
-                        for opp in opportunity:
-                            i = 1
-                            event_to_table = {
-                                    'sport':sport,
-                                    'event': event_data[0],
-                                    "event date": event_data[1],
-                                    "1" : opp[[key for key in opp.keys() if key.endswith("home_team_win")][0]],
-                                    "2" : opp[[key for key in opp.keys() if key.endswith("away_team_win")][0]]
-                                    }
-                            for name_variation in names_variation:
-                                event_to_table[f'name_{i}'] = name_variation
-                                i += 1
+                        self.sort_two_way(
+                            opportunity, sport, event_data, names_variation
+                        )
 
-                            twoway = twoway._append(event_to_table,ignore_index=True)
-        return twoway, threeway
 
 class DisciplineOperator:
     """
