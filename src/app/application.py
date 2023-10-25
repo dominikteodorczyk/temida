@@ -72,7 +72,13 @@ class DataOperator:
                 DisciplineOperator(sport, bet_type).scan_market()
             )
 
-    def sort_two_way(self, opportunity, sport, event_data, names_variation):
+    def sort_two_way(
+        self,
+        opportunity: list,
+        sport: str,
+        event_data: tuple,
+        names_variation: list,
+    ):
         """
         Sorts and stores data for two-way betting opportunities.
 
@@ -113,7 +119,13 @@ class DataOperator:
                 event_to_table, ignore_index=True
             )
 
-    def sort_three_way(self, opportunity, sport, event_data, names_variation):
+    def sort_three_way(
+        self,
+        opportunity: list,
+        sport: str,
+        event_data: tuple,
+        names_variation: list,
+    ):
         """
         Sorts and stores data for three-way betting opportunities.
 
