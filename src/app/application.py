@@ -21,6 +21,7 @@ initializing the necessary operators, scanning the market, and handling
 email notifications.
 """
 
+from pandas import DataFrame
 from app.webscrper import ScrapersPool
 from app.arbitrage import Arbitrage
 from utils.sports import EventsTypes
@@ -35,7 +36,7 @@ class MainOperator:
     """
 
     def __init__(self) -> None:
-        reuslts = DataOperator().get_data()
+        reuslts = DataOperator().sort_data()
         print(reuslts)
 
 
@@ -50,10 +51,9 @@ class DataOperator:
     """
 
     def __init__(self) -> None:
-        pass
+        self.results = self.get_data()
 
-    @staticmethod
-    def get_data():
+    def get_data(self):
         """
         Retrieves sports betting data for various sports and bet types.
         """
@@ -62,8 +62,54 @@ class DataOperator:
             opportunities.append(
                 DisciplineOperator(sport, bet_type).scan_market()
             )
-        print(opportunities)
+        return opportunities
 
+    def sort_data(self):
+        twoway = DataFrame()
+        threeway = DataFrame()
+
+        for sport_type in self.results:
+            sport = next(iter(sport_type.keys()))
+            for event in sport_type[sport]:
+                if event:
+                    event_data = next(iter(event.keys()))
+                    event_values = next(iter(event.values()))
+                    names_variation = event_values[0]
+                    opportunity = event_values[1]
+
+                    if len(opportunity[0]) == 3:
+                        for opp in opportunity:
+                            i = 1
+                            event_to_table = {
+                                    'sport':sport,
+                                    'event': event_data[0],
+                                    "event date": event_data[1],
+                                    "1" : opp[[key for key in opp.keys() if key.endswith("home_team_win")][0]],
+                                    "X" : opp[[key for key in opp.keys() if key.endswith("draw")][0]],
+                                    "2" : opp[[key for key in opp.keys() if key.endswith("away_team_win")][0]]
+                                    }
+                            for name_variation in names_variation:
+                                event_to_table[f'name_{i}'] = name_variation
+                                i += 1
+
+                            threeway = threeway._append(event_to_table,ignore_index=True)
+
+                    if len(opportunity[0]) == 2:
+                        for opp in opportunity:
+                            i = 1
+                            event_to_table = {
+                                    'sport':sport,
+                                    'event': event_data[0],
+                                    "event date": event_data[1],
+                                    "1" : opp[[key for key in opp.keys() if key.endswith("home_team_win")][0]],
+                                    "2" : opp[[key for key in opp.keys() if key.endswith("away_team_win")][0]]
+                                    }
+                            for name_variation in names_variation:
+                                event_to_table[f'name_{i}'] = name_variation
+                                i += 1
+
+                            twoway = twoway._append(event_to_table,ignore_index=True)
+        return twoway, threeway
 
 class DisciplineOperator:
     """
