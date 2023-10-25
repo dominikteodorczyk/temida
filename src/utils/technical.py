@@ -4,6 +4,8 @@ Technical tools.
 
 import os
 import logging
+from os import getenv
+from dotenv import load_dotenv
 
 
 def setup_logger(
@@ -85,3 +87,33 @@ class Constant:
     TOTAL_MIN_RETURN = 0.00
     CLUSTER_STRINGS_THRESHOLDS = 0.001
     # https://scikit-learn.org/stable/modules/generated/sklearn.cluster.AgglomerativeClustering.html
+
+
+class Mailbox:
+    """
+    Mailbox class represents an email mailbox with configurations loaded from
+    environment variables.
+
+    Attributes:
+    - LOGIN (str): The login name associated with the email account.
+    - PASSWORD (str): The password associated with the email account.
+    - MAILING_LIST (list): The email address where emails will be sent.
+    """
+    load_dotenv()
+    LOGIN = getenv("MAIL_LOGIN")
+    """
+    The login name associated with the email account.
+    It is loaded from the environment variable "MAIL_LOGIN".
+    """
+
+    PASSWORD = getenv("MAIL_PASSWORD")
+    """
+    The password associated with the email account.
+    It is loaded from the environment variable "MAIL_PASSWORD".
+    """
+
+    MAILING_LIST = getenv("SEND_TO")
+    """
+    The email address list where emails will be sent.
+    It is loaded from the environment variable "SEND_TO".
+    """
