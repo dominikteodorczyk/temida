@@ -31,7 +31,7 @@ import pytest
 from pandas import DataFrame
 from utils.events import Event
 from utils.technical import Constant
-from app.arbitrage import (
+from application.arbitrage import (
     ArbitrageCalculator,
     TwoWayArbitrageCalculator,
     ThreeWayArbitrageCalculator,

@@ -22,8 +22,8 @@ email notifications.
 """
 
 from pandas import DataFrame
-from app.webscrper import ScrapersPool
-from app.arbitrage import Arbitrage
+from application.webscrper import ScrapersPool
+from application.arbitrage import Arbitrage
 from utils.sports import EventsTypes
 
 
@@ -36,9 +36,9 @@ class MainOperator:
     """
 
     def __init__(self) -> None:
-        reuslts = DataOperator().sort_data()
-        MailOperator()
-        print(reuslts)
+        self.reuslts = DataOperator()
+        self.reuslts.get_data()
+        self.reuslts.sort_data()
 
 
 class DataOperator:
@@ -72,6 +72,13 @@ class DataOperator:
                 DisciplineOperator(sport, bet_type).scan_market()
             )
 
+    def get_odds_value_with_bookmaker(self,opp:dict,ends_with:str):
+
+        odds_key:str = [key for key in opp.keys() if key.endswith(ends_with)][0]
+        bet_value:float = opp[odds_key]
+        bookmaker:str = odds_key.replace(f"_{ends_with}","")
+        return f'{bet_value} ({bookmaker})'
+
     def sort_two_way(
         self,
         opportunity: list,
@@ -96,20 +103,8 @@ class DataOperator:
                 "sport": sport,
                 "event": event_data[0],
                 "event date": event_data[1],
-                "1": opp[
-                    [
-                        key
-                        for key in opp.keys()
-                        if key.endswith("home_team_win")
-                    ][0]
-                ],
-                "2": opp[
-                    [
-                        key
-                        for key in opp.keys()
-                        if key.endswith("away_team_win")
-                    ][0]
-                ],
+                "1": self.get_odds_value_with_bookmaker(opp,"home_team_win"),
+                "2": self.get_odds_value_with_bookmaker(opp,"away_team_win"),
             }
             for name_variation in names_variation:
                 event_to_table[f"name_{i}"] = name_variation
@@ -143,23 +138,9 @@ class DataOperator:
                 "sport": sport,
                 "event": event_data[0],
                 "event date": event_data[1],
-                "1": opp[
-                    [
-                        key
-                        for key in opp.keys()
-                        if key.endswith("home_team_win")
-                    ][0]
-                ],
-                "X": opp[
-                    [key for key in opp.keys() if key.endswith("draw")][0]
-                ],
-                "2": opp[
-                    [
-                        key
-                        for key in opp.keys()
-                        if key.endswith("away_team_win")
-                    ][0]
-                ],
+                "1": self.get_odds_value_with_bookmaker(opp,"home_team_win"),
+                "X": self.get_odds_value_with_bookmaker(opp,"draw"),
+                "2": self.get_odds_value_with_bookmaker(opp,"away_team_win"),
             }
             for name_variation in names_variation:
                 event_to_table[f"name_{i}"] = name_variation
@@ -182,7 +163,6 @@ class DataOperator:
                     event_values = next(iter(event.values()))
                     names_variation = event_values[0]
                     opportunity = event_values[1]
-                    print(len(opportunity[0]))
                     if len(opportunity[0]) == 3:
                         self.sort_three_way(
                             opportunity, sport, event_data, names_variation
@@ -225,13 +205,3 @@ class DisciplineOperator:
         arbitrage_obj = Arbitrage(data)
         opportunities = arbitrage_obj.calculate_arbitage()
         return {self.sport: opportunities}
-
-
-class MailOperator:
-    """
-    This class is intended to handle the sending of emails for potential
-    betting opportunities. Currently, the implementation is not provided.
-    """
-
-    def __init__(self) -> None:
-        pass
