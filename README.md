@@ -4,8 +4,13 @@
 <div align="center">
   <h1 style="font-size: 36px;">Temida</h1>
 </div>
+<p align="center">
+The application is a presentation of the possibility of collecting data available to adults and processing them.  It is only a practical and test implementation of the theoretical concept of arbitrage on bookmaker bets (does not constitute a recommendation of games). Prohibition of the use and participation in gambling games for persons under 18 years of age.
+</p>
+
+
 <p align="justify">
-The design of an application that performs arbitrage in the betting market. It uses data of legal bookmakers in Poland in accordance with the document "Mutual betting and gambling over the Internet" published on 24.08.2023 by the Ministry of Finance of the Republic of Poland located at 12 Świętokrzyska Street in Warsaw.
+The design of an application that performs arbitrage in the betting market. It uses data of legal bookmakers in Poland in accordance with the document "Mutual betting and gambling over the Internet" published on 24.08.2023 by the Ministry of Finance of the Republic of Poland located at 12 Świętokrzyska Street in Warsaw (https://www.podatki.gov.pl/pozostale-podatki/gry-hazardowe/zaklady-wzajemne-i-gry-hazardowe-przez-internet/).
 
 A version of a working application has been made that allows screper implementations for various bookmakers.
 #### Features

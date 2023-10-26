@@ -1,7 +1,7 @@
 """
 This module contains the main entry point for the application.
 """
-from app.application import MainOperator
+from application.operators import MainOperator
 
 
 def main():
