@@ -43,11 +43,15 @@ class MainOperator:
         self.logging = setup_logger(name="MAIN_OPERATOR", print_logs=True)
 
         if not self.reuslts.two_way_results.empty:
-            self.logging.info("Two ways bets:\n%s",
-                              self.reuslts.two_way_results.to_string())
+            self.logging.info(
+                "Two ways bets:\n%s",
+                self.reuslts.two_way_results.to_string()
+                )
         if not self.reuslts.three_way_results.empty:
-            self.logging.info("Three ways bets:\n%s",
-                              self.reuslts.three_way_results.to_string())
+            self.logging.info(
+                "Three ways bets:\n%s",
+                self.reuslts.three_way_results.to_string()
+                )
 
 
 class DataOperator:
