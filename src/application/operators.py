@@ -25,6 +25,7 @@ from pandas import DataFrame
 from application.webscrper import ScrapersPool
 from application.arbitrage import Arbitrage
 from utils.sports import EventsTypes
+from utils.technical import setup_logger
 
 
 class MainOperator:
@@ -39,6 +40,14 @@ class MainOperator:
         self.reuslts = DataOperator()
         self.reuslts.get_data()
         self.reuslts.sort_data()
+        self.logging = setup_logger(name="MAIN_OPERATOR", print_logs=True)
+
+        if not self.reuslts.two_way_results.empty:
+            self.logging.info("Two ways bets:\n%s",
+                              self.reuslts.two_way_results.to_string())
+        if not self.reuslts.three_way_results.empty:
+            self.logging.info("Three ways bets:\n%s",
+                              self.reuslts.three_way_results.to_string())
 
 
 class DataOperator:
@@ -62,15 +71,22 @@ class DataOperator:
         self.results = []
         self.two_way_results = DataFrame()
         self.three_way_results = DataFrame()
+        self.logging = setup_logger(name="DATA_OPERATOR", print_logs=True)
 
     def get_data(self):
         """
         Retrieves sports betting data for various sports and bet types.
         """
         for sport, bet_type in EventsTypes().sports.items():
-            self.results.append(
-                DisciplineOperator(sport, bet_type).scan_market()
-            )
+            try:
+                self.results.append(
+                    DisciplineOperator(sport, bet_type).scan_market()
+                )
+                self.logging.info(f'{sport} data scraped')
+            except:
+                self.logging.warning(f'{sport} data not scraped')
+        self.logging.info('Data scraping is finished')
+
 
     def get_odds_value_with_bookmaker(self,opp:dict,ends_with:str):
 
