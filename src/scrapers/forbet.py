@@ -33,11 +33,12 @@ class ForbetScraper(Scraper):
         except Exception as e:
             self.logging.error(f"Unknown bug, more here: {e}")
 
+
     def get_events_from_site(self):
 
         try:
             self.close_adult_msg()
-            self.close_cookies_msg
+            self.close_cookies_msg()
         except Exception as e:
             self.logging.error(f"Unknown bug, more here: {e}")
         self.logging.info(f"Events collected: {self.site_path}")
