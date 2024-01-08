@@ -8,7 +8,7 @@ class ForbetScraper(Scraper):
     def __init__(self, site_path: str) -> None:
         super().__init__(site_path)
         self.main_boxes: list = []
-        self.competition_boxes: dict = {}
+        self.competition_boxes: list = []
         self.events_objects: dict = {}
 
 
@@ -50,6 +50,12 @@ class ForbetScraper(Scraper):
         except NoSuchElementException:
             self.logging.warning("No segment elements")
 
+    def get_competition_boxes(self):
+        for box in self.main_boxes:
+            competition_box = box.find_elements(By.XPATH, './/div/section[*]')
+            for comp_box in competition_box:
+                self.competition_boxes.append(comp_box)
+
 
     def get_events_from_site(self):
 
@@ -57,8 +63,8 @@ class ForbetScraper(Scraper):
             self.close_adult_msg()
             self.close_cookies_msg()
             self.get_main_sections()
+            self.get_competition_boxes()
         except Exception as e:
             self.logging.error(f"Unknown bug, more here: {e}")
-
 
         self.logging.info(f"Events collected: {self.site_path}")
