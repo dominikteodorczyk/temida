@@ -385,7 +385,15 @@ class ForbetParser(Parser):
         --------
         datetime.date: The parsed event date.
         """
-        return None
+        today = datetime.now().date()
+        if today.month <= datetime.strptime(date_str[:5], "%d.%m").month:
+            return datetime.strptime(
+                f"{date_str[:5]}.{datetime.now().year}", "%d.%m.%Y"
+            ).date()
+        else:
+            return datetime.strptime(
+                f"{date_str[:5]}.{datetime.now().year + 1}", "%d.%m.%Y"
+            ).date()
 
     @staticmethod
     def parse_event_name(*args):
