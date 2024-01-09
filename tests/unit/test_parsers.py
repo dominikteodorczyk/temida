@@ -4,6 +4,7 @@ from utils.parsers import (
     FortunaParser,
     STSParser,
     SuperbetParser,
+    ForbetParser
 )
 import pytest
 from datetime import datetime, timedelta
@@ -530,3 +531,45 @@ class Test_BetclicParser:
         value = parser.parse_away_name(example_data["away_player"])
         assert type(value) == str
         assert value == expected_return["away_player"]
+
+
+class Test_ForbetParser:
+    @pytest.fixture
+    def example_data(self):
+        return {
+            "home_player": "Galatasaray - Bayern M.",
+            "away_player": "Galatasaray - Bayern M.",
+            "home_team_win": "5,8",
+            "draw": "4,8",
+            "away_team_win": "1,47",
+            "event_date": "12.12",
+        }
+
+    @pytest.fixture
+    def expected_return(self):
+        return {
+            "event_name": "Galatasaray - Bayern M.",
+            "home_player": "GALATASARAY",
+            "away_player": "BAYERN M.",
+            "home_team_win": 5.8,
+            "draw": 4.8,
+            "away_team_win": 1.47,
+            "event_date": datetime.strptime(
+                f"12.12.{datetime.now().year}", "%d.%m.%Y"
+            ).date(),
+        }
+
+    @pytest.fixture
+    def secound_example_date(self):
+        return "01.01"
+
+    @pytest.fixture
+    def expected_return_date(self):
+        return datetime.strptime(
+            f"01.01.{datetime.now().year + 1}", "%d.%m.%Y"
+        ).date()
+
+    def test_parse_date_return_datetime(self, example_data, expected_return):
+        parser = ForbetParser()
+        value = parser.parse_date(example_data["event_date"])
+        assert type(value) == type(expected_return["event_date"])
