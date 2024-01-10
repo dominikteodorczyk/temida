@@ -416,7 +416,7 @@ class Test_BetclicParser:
         assert value == expected_return["away_player"]
 
 
-class Test_BetclicParser:
+class Test_SuperbetParser:
     @pytest.fixture
     def example_data(self):
         return {
