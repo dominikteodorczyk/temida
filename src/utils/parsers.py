@@ -408,7 +408,7 @@ class ForbetParser(Parser):
         --------
         str: The parsed event name.
         """
-        return None
+        return args[0].strip()
 
     @staticmethod
     def parse_home_name(event_name):
@@ -423,7 +423,7 @@ class ForbetParser(Parser):
         --------
         str: The parsed home team name.
         """
-        return None
+        return event_name.split(" - ")[0].strip().upper()
 
     @staticmethod
     def parse_away_name(event_name):
@@ -438,4 +438,4 @@ class ForbetParser(Parser):
         --------
         str: The parsed away team name.
         """
-        return None
+        return event_name.split(" - ")[1].strip().upper()
