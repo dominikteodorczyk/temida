@@ -577,3 +577,29 @@ class Test_ForbetParser:
         parser = ForbetParser()
         value = parser.parse_date(example_data["event_date"])
         assert type(value) == type(expected_return["event_date"])
+
+    def test_parse_event_name_return_proper_str(
+        self, example_data, expected_return
+    ):
+        parser = ForbetParser()
+        value = parser.parse_event_name(
+            example_data["home_player"], example_data["away_player"]
+        )
+        assert type(value) == str
+        assert value == expected_return["event_name"]
+
+    def test_parse_home_name_return_proper_str(
+        self, example_data, expected_return
+    ):
+        parser = ForbetParser()
+        value = parser.parse_home_name(example_data["home_player"])
+        assert type(value) == str
+        assert value == expected_return["home_player"]
+
+    def test_parse_away_name_return_proper_str(
+        self, example_data, expected_return
+    ):
+        parser = ForbetParser()
+        value = parser.parse_away_name(example_data["away_player"])
+        assert type(value) == str
+        assert value == expected_return["away_player"]
