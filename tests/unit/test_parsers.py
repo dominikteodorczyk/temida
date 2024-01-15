@@ -546,7 +546,7 @@ class Test_ForbetParser:
             "home_team_win": "5,8",
             "draw": "4,8",
             "away_team_win": "1,47",
-            "event_date": "12.12",
+            "event_date": "ŚRODA, 12.12",
         }
 
     @pytest.fixture
