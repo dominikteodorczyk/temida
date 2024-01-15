@@ -25,6 +25,7 @@ from pandas import DataFrame
 from application.webscrper import ScrapersPool
 from application.arbitrage import Arbitrage
 from utils.sports import EventsTypes
+from utils.technical import setup_logger
 
 
 class MainOperator:
@@ -39,6 +40,17 @@ class MainOperator:
         self.reuslts = DataOperator()
         self.reuslts.get_data()
         self.reuslts.sort_data()
+        self.logging = setup_logger(name="MAIN_OPERATOR", print_logs=True)
+
+        if not self.reuslts.two_way_results.empty:
+            self.logging.info(
+                "Two ways bets:\n%s", self.reuslts.two_way_results.to_string()
+            )
+        if not self.reuslts.three_way_results.empty:
+            self.logging.info(
+                "Three ways bets:\n%s",
+                self.reuslts.three_way_results.to_string(),
+            )
 
 
 class DataOperator:
@@ -62,22 +74,29 @@ class DataOperator:
         self.results = []
         self.two_way_results = DataFrame()
         self.three_way_results = DataFrame()
+        self.logging = setup_logger(name="DATA_OPERATOR", print_logs=True)
 
     def get_data(self):
         """
         Retrieves sports betting data for various sports and bet types.
         """
         for sport, bet_type in EventsTypes().sports.items():
-            self.results.append(
-                DisciplineOperator(sport, bet_type).scan_market()
-            )
+            try:
+                self.results.append(
+                    DisciplineOperator(sport, bet_type).scan_market()
+                )
+                self.logging.info(f"{sport} data scraped")
+            except:
+                self.logging.warning(f"{sport} data not scraped")
+        self.logging.info("Data scraping is finished")
 
-    def get_odds_value_with_bookmaker(self,opp:dict,ends_with:str):
-
-        odds_key:str = [key for key in opp.keys() if key.endswith(ends_with)][0]
-        bet_value:float = opp[odds_key]
-        bookmaker:str = odds_key.replace(f"_{ends_with}","")
-        return f'{bet_value} ({bookmaker})'
+    def get_odds_value_with_bookmaker(self, opp: dict, ends_with: str):
+        odds_key: str = [key for key in opp.keys() if key.endswith(ends_with)][
+            0
+        ]
+        bet_value: float = opp[odds_key]
+        bookmaker: str = odds_key.replace(f"_{ends_with}", "")
+        return f"{bet_value} ({bookmaker})"
 
     def sort_two_way(
         self,
@@ -103,8 +122,8 @@ class DataOperator:
                 "sport": sport,
                 "event": event_data[0],
                 "event date": event_data[1],
-                "1": self.get_odds_value_with_bookmaker(opp,"home_team_win"),
-                "2": self.get_odds_value_with_bookmaker(opp,"away_team_win"),
+                "1": self.get_odds_value_with_bookmaker(opp, "home_team_win"),
+                "2": self.get_odds_value_with_bookmaker(opp, "away_team_win"),
             }
             for name_variation in names_variation:
                 event_to_table[f"name_{i}"] = name_variation
@@ -138,9 +157,9 @@ class DataOperator:
                 "sport": sport,
                 "event": event_data[0],
                 "event date": event_data[1],
-                "1": self.get_odds_value_with_bookmaker(opp,"home_team_win"),
-                "X": self.get_odds_value_with_bookmaker(opp,"draw"),
-                "2": self.get_odds_value_with_bookmaker(opp,"away_team_win"),
+                "1": self.get_odds_value_with_bookmaker(opp, "home_team_win"),
+                "X": self.get_odds_value_with_bookmaker(opp, "draw"),
+                "2": self.get_odds_value_with_bookmaker(opp, "away_team_win"),
             }
             for name_variation in names_variation:
                 event_to_table[f"name_{i}"] = name_variation
