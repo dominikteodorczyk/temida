@@ -13,6 +13,19 @@ from utils.events import (
 
 
 class ForbetScraper(Scraper):
+    """
+    A specialized scraper for collecting data from Forbet, inherits
+    from Scraper.
+
+    Attributes:
+    -----------
+    - site_path (str): The URL of the Forbet website.
+    - competition_boxes (list): A list to store competition boxes
+        on the Forbet webpage.
+    - events_objects (list): A dictionary to store event objects
+        collected from Forbet.
+    - logging (Logger): The logger for handling log messages.
+    """
     def __init__(self, site_path: str) -> None:
         super().__init__(site_path)
         self.main_boxes: list = []
@@ -79,11 +92,11 @@ class ForbetScraper(Scraper):
 class ForbetTwoWayBets(ForbetScraper):
     """
     A class representing a scraper for collecting two-way sports betting
-    data from Superbet.
+    data from Forbet.
 
     Inherits from:
     --------------
-    SuperbetScraper
+    ForbetScraper
 
     Attributes:
     ------------
@@ -93,7 +106,7 @@ class ForbetTwoWayBets(ForbetScraper):
 
     Parameters:
     -----------
-    site_path (str): The URL of the Superbet webpage to scrape.
+    site_path (str): The URL of the Forbet webpage to scrape.
     """
 
     def __init__(self, site_path: str) -> None:
@@ -103,12 +116,12 @@ class ForbetTwoWayBets(ForbetScraper):
     def get_events_values(self, result_queue):
         """
         Collects and processes two-way sports betting data from
-        the Superbet webpage.
+        the Forbet webpage.
 
         This method scrapes and extracts relevant information
-        from the Superbet webpage for two-way sports betting events.
+        from the Forbet webpage for two-way sports betting events.
         The collected data is then formatted and added to
-        the TwoWayBetEventsTable using the SuperbetParser.
+        the TwoWayBetEventsTable using the ForbetParser.
 
         Parameters:
         -----------
@@ -121,11 +134,8 @@ class ForbetTwoWayBets(ForbetScraper):
         """
         self.get_events_from_site()
         for element in self.competition_boxes:
-            raw_date = element.find_element(By.XPATH,'.//header/h3').text
-            for event in element.find_elements(
-                By.XPATH,
-                './/div[*]'
-            ):
+            raw_date = element.find_element(By.XPATH, ".//header/h3").text
+            for event in element.find_elements(By.XPATH, ".//div[*]"):
                 try:
                     event_data = {
                         "home_player": event.find_element(
@@ -155,7 +165,8 @@ class ForbetTwoWayBets(ForbetScraper):
                     exception_message = str(e)
                     traceback_str = traceback.format_exc()
                     self.logging.error(
-                        f"Unknown bug, more here: {traceback_str} {exception_message}"
+                        f"Unknown bug, more here:
+                        {traceback_str} {exception_message}"
                     )
         self.logging.info(f"Data collected: {self.site_path}")
         self.driver.quit()
@@ -165,11 +176,11 @@ class ForbetTwoWayBets(ForbetScraper):
 class ForbetThreeWayBets(ForbetScraper):
     """
     A class representing a scraper for collecting three-way sports betting
-    data from Superbet.
+    data from Forbet.
 
     Inherits from:
     --------------
-    SuperbetScraper
+    ForbetScraper
 
     Attributes:
     ------------
@@ -179,7 +190,7 @@ class ForbetThreeWayBets(ForbetScraper):
 
     Parameters:
     -----------
-    site_path (str): The URL of the Superbet webpage to scrape.
+    site_path (str): The URL of the Forbet webpage to scrape.
     """
 
     def __init__(self, site_path: str) -> None:
@@ -189,7 +200,7 @@ class ForbetThreeWayBets(ForbetScraper):
     def get_events_values(self, result_queue):
         """
         Collects and processes three-way sports betting data from
-        the Superbet webpage.
+        the Forbet webpage.
 
         This method scrapes and extracts relevant information
         from the Superbet webpage for three-way sports betting events.
@@ -207,11 +218,8 @@ class ForbetThreeWayBets(ForbetScraper):
         """
         self.get_events_from_site()
         for element in self.competition_boxes:
-            raw_date = element.find_element(By.XPATH,'.//header/h3').text
-            for event in element.find_elements(
-                By.XPATH,
-                './/div[*]'
-            ):
+            raw_date = element.find_element(By.XPATH, ".//header/h3").text
+            for event in element.find_elements(By.XPATH, ".//div[*]"):
                 try:
                     event_data = {
                         "home_player": event.find_element(
@@ -244,7 +252,8 @@ class ForbetThreeWayBets(ForbetScraper):
                     exception_message = str(e)
                     traceback_str = traceback.format_exc()
                     self.logging.error(
-                        f"Unknown bug, more here: {traceback_str} {exception_message}"
+                        f"Unknown bug, more here:
+                        {traceback_str} {exception_message}"
                     )
         self.logging.info(f"Data collected: {self.site_path}")
         self.driver.quit()
