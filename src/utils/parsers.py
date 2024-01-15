@@ -365,3 +365,78 @@ class SuperbetParser(Parser):
         str: The parsed away team name.
         """
         return away_name.strip().upper()
+
+
+class ForbetParser(Parser):
+    """
+    A class providing static methods for parsing odds specific to Fortuna.
+    """
+
+    @staticmethod
+    def parse_date(date_str: str):
+        """
+        Parse the event date from a string.
+
+        Parameters:
+        -----------
+        - date_str (str): The string representing the event date.
+
+        Returns:
+        --------
+        datetime.date: The parsed event date.
+        """
+        today = datetime.now().date()
+        date = date_str.split(", ")[1]
+        if today.month <= datetime.strptime(date[:5], "%d.%m").month:
+            return datetime.strptime(
+                f"{date[:5]}.{datetime.now().year}", "%d.%m.%Y"
+            ).date()
+        else:
+            return datetime.strptime(
+                f"{date[:5]}.{datetime.now().year + 1}", "%d.%m.%Y"
+            ).date()
+
+    @staticmethod
+    def parse_event_name(*args):
+        """
+        Parse the event name from input arguments.
+
+        Parameters:
+        -----------
+        - *args (str): Variable-length arguments representing the event name.
+
+        Returns:
+        --------
+        str: The parsed event name.
+        """
+        return args[0].strip()
+
+    @staticmethod
+    def parse_home_name(event_name):
+        """
+        Parse the home team name from the event name.
+
+        Parameters:
+        -----------
+        - event_name (str): The string representing the event name.
+
+        Returns:
+        --------
+        str: The parsed home team name.
+        """
+        return event_name.split(" - ")[0].strip().upper()
+
+    @staticmethod
+    def parse_away_name(event_name):
+        """
+        Parse the away team name from the event name.
+
+        Parameters:
+        -----------
+        - event_name (str): The string representing the event name.
+
+        Returns:
+        --------
+        str: The parsed away team name.
+        """
+        return event_name.split(" - ")[1].strip().upper()

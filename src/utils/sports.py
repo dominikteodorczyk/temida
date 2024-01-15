@@ -19,6 +19,7 @@ from scrapers.betclic import BetclicTwoWayBets, BetclicThreeWayBets
 from scrapers.sts import STSTwoWayBets, STSThreeWayBets
 from scrapers.superbet import SuperbetTwoWayBets, SuperbetThreeWayBets
 from scrapers.fortuna import FortunaTwoWayBets, FortunaThreeWayBets
+from scrapers.forbet import ForbetTwoWayBets, ForbetThreeWayBets
 
 
 class EventsTypes:
@@ -75,6 +76,7 @@ class ScrapersDict:
             Fortuna(): [FortunaTwoWayBets, FortunaThreeWayBets],
             Betclic(): [BetclicTwoWayBets, BetclicThreeWayBets],
             Superbet(): [SuperbetTwoWayBets, SuperbetThreeWayBets],
+            Forbet(): [ForbetTwoWayBets, ForbetThreeWayBets],
         }
 
 
