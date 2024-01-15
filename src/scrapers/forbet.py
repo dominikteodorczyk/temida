@@ -19,7 +19,6 @@ class ForbetScraper(Scraper):
         self.competition_boxes: list = []
         self.events_objects: dict = {}
 
-
     def close_adult_msg(self):
         try:
             confirm_button = self.driver.find_element(
@@ -35,7 +34,7 @@ class ForbetScraper(Scraper):
         try:
             time.sleep(5)
             confirm_button = self.driver.find_element(
-                By.XPATH, '/html/body/div[1]/div[1]/div/div/div[2]/button[3]'
+                By.XPATH, "/html/body/div[1]/div[1]/div/div/div[2]/button[3]"
             )
             confirm_button.click()
         except NoSuchElementException:
@@ -51,7 +50,8 @@ class ForbetScraper(Scraper):
         time.sleep(5)
         try:
             _main_boxes = self.driver.find_elements(
-                By.XPATH, '//*[@id="__next"]/div/div/main/div/div/div/div/div[1]/section/div/section[*]'
+                By.XPATH,
+                '//*[@id="__next"]/div/div/main/div/div/div/div/div[1]/section/div/section[*]',
             )
             for box in _main_boxes:
                 self.main_boxes.append(box)
@@ -60,7 +60,7 @@ class ForbetScraper(Scraper):
 
     def get_competition_boxes(self):
         for box in self.main_boxes:
-            competition_box = box.find_elements(By.XPATH, './/div/section[*]')
+            competition_box = box.find_elements(By.XPATH, ".//div/section[*]")
             for comp_box in competition_box:
                 self.competition_boxes.append(comp_box)
 
@@ -119,53 +119,44 @@ class ForbetTwoWayBets(ForbetScraper):
         --------
         None
         """
-
+        self.get_events_from_site()
         for element in self.competition_boxes:
-            raw_date = element.find_element()
-
-
-            try:
-                home_name = element.find_element(
-                    By.XPATH, "./div[1]/div[2]/div[1]/span[1]"
-                ).text
-                away_name = element.find_element(
-                    By.XPATH, "./div[1]/div[2]/div[1]/span[2]"
-                ).text
-                if f"{home_name}{away_name}" in self.events_objects:
-                    pass
-                else:
+            raw_date = element.find_element(By.XPATH,'.//header/h3').text
+            for event in element.find_elements(
+                By.XPATH,
+                './/div[*]'
+            ):
+                try:
                     event_data = {
-                        "home_player": home_name,
-                        "away_player": away_name,
-                        "home_team_win": element.find_element(
-                            By.XPATH,
-                            "./div[2]/div[2]/div/div[1]/button/span[4]/span[2]",
+                        "home_player": event.find_element(
+                            By.XPATH, ".//a[1]/header"
                         ).text,
-                        "away_team_win": element.find_element(
-                            By.XPATH,
-                            "./div[2]/div[2]/div/div[2]/button/span[4]/span[2]",
+                        "away_player": event.find_element(
+                            By.XPATH, ".//a[1]/header"
                         ).text,
-                        "event_date": element.find_element(
+                        "home_team_win": event.find_element(
                             By.XPATH,
-                            "./div[1]/div[1]/span[1]",
+                            ".//div[3]/div[1]/button[1]",
                         ).text,
+                        "away_team_win": event.find_element(
+                            By.XPATH,
+                            ".//div[3]/div[1]/button[2]",
+                        ).text,
+                        "event_date": raw_date,
                     }
                     self.events_data.put(
                         TwoWayBetEvent.create_from_data(
-                            event_data, SuperbetParser()
+                            event_data, ForbetParser()
                         )
                     )
-                    self.events_objects.append(f"{home_name}{away_name}")
-            except NoSuchElementException:
-                pass
-            except Exception as e:
-                exception_message = str(e)
-                traceback_str = traceback.format_exc()
-                self.logging.error(
-                    f"Unknown bug, more here: {traceback_str} {exception_message}"
-                )
-        time.sleep(0.01)
-
+                except NoSuchElementException as e:
+                    pass
+                except Exception as e:
+                    exception_message = str(e)
+                    traceback_str = traceback.format_exc()
+                    self.logging.error(
+                        f"Unknown bug, more here: {traceback_str} {exception_message}"
+                    )
         self.logging.info(f"Data collected: {self.site_path}")
-        self.driver.quit()
+        # self.driver.quit()
         result_queue.put(self.events_data)
