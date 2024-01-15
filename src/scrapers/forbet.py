@@ -158,5 +158,94 @@ class ForbetTwoWayBets(ForbetScraper):
                         f"Unknown bug, more here: {traceback_str} {exception_message}"
                     )
         self.logging.info(f"Data collected: {self.site_path}")
-        # self.driver.quit()
+        self.driver.quit()
+        result_queue.put(self.events_data)
+
+
+class ForbetThreeWayBets(ForbetScraper):
+    """
+    A class representing a scraper for collecting three-way sports betting
+    data from Superbet.
+
+    Inherits from:
+    --------------
+    SuperbetScraper
+
+    Attributes:
+    ------------
+    events_data (ThreeWayBetEventsTable): An instance of the
+    ThreeWayBetEventsTable class for storing and managing three-way
+    sports betting event data.
+
+    Parameters:
+    -----------
+    site_path (str): The URL of the Superbet webpage to scrape.
+    """
+
+    def __init__(self, site_path: str) -> None:
+        super().__init__(site_path)
+        self.events_data = ThreeWayBetEventsTable("FORBET")
+
+    def get_events_values(self, result_queue):
+        """
+        Collects and processes three-way sports betting data from
+        the Superbet webpage.
+
+        This method scrapes and extracts relevant information
+        from the Superbet webpage for three-way sports betting events.
+        The collected data is then formatted and added to
+        the ThreeWayBetEventsTable using the SuperbetParser.
+
+        Parameters:
+        -----------
+        result_queue (Queue): A queue to store the result
+        (ThreeWayBetEventsTable) for further processing.
+
+        Returns:
+        --------
+        None
+        """
+        self.get_events_from_site()
+        for element in self.competition_boxes:
+            raw_date = element.find_element(By.XPATH,'.//header/h3').text
+            for event in element.find_elements(
+                By.XPATH,
+                './/div[*]'
+            ):
+                try:
+                    event_data = {
+                        "home_player": event.find_element(
+                            By.XPATH, ".//a[1]/header"
+                        ).text,
+                        "away_player": event.find_element(
+                            By.XPATH, ".//a[1]/header"
+                        ).text,
+                        "home_team_win": event.find_element(
+                            By.XPATH,
+                            ".//div[3]/div[1]/button[1]",
+                        ).text,
+                        "draw": event.find_element(
+                            By.XPATH, ".//div[3]/div[1]/button[2]"
+                        ).text,
+                        "away_team_win": event.find_element(
+                            By.XPATH,
+                            ".//div[3]/div[1]/button[3]",
+                        ).text,
+                        "event_date": raw_date,
+                    }
+                    self.events_data.put(
+                        ThreeWayBetEvent.create_from_data(
+                            event_data, ForbetParser()
+                        )
+                    )
+                except NoSuchElementException as e:
+                    pass
+                except Exception as e:
+                    exception_message = str(e)
+                    traceback_str = traceback.format_exc()
+                    self.logging.error(
+                        f"Unknown bug, more here: {traceback_str} {exception_message}"
+                    )
+        self.logging.info(f"Data collected: {self.site_path}")
+        self.driver.quit()
         result_queue.put(self.events_data)
