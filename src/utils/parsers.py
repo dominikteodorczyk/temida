@@ -373,7 +373,7 @@ class ForbetParser(Parser):
     """
 
     @staticmethod
-    def parse_date(date_str):
+    def parse_date(date_str: str):
         """
         Parse the event date from a string.
 
@@ -386,13 +386,14 @@ class ForbetParser(Parser):
         datetime.date: The parsed event date.
         """
         today = datetime.now().date()
-        if today.month <= datetime.strptime(date_str[:5], "%d.%m").month:
+        date = date_str.split(", ")[1]
+        if today.month <= datetime.strptime(date[:5], "%d.%m").month:
             return datetime.strptime(
-                f"{date_str[:5]}.{datetime.now().year}", "%d.%m.%Y"
+                f"{date[:5]}.{datetime.now().year}", "%d.%m.%Y"
             ).date()
         else:
             return datetime.strptime(
-                f"{date_str[:5]}.{datetime.now().year + 1}", "%d.%m.%Y"
+                f"{date[:5]}.{datetime.now().year + 1}", "%d.%m.%Y"
             ).date()
 
     @staticmethod
